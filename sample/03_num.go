@@ -3,16 +3,11 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
-	"strconv"
 )
 
 func main() {
-	if len(os.Args) != 2 {
-		log.Fatal("引数の個数が正しくありません")
-	}
-
-	v, err := strconv.Atoi(os.Args[1])
+	var v int
+	_, err := fmt.Scan(&v)
 	if err != nil {
 		log.Fatal(err)
 	}
