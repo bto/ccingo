@@ -16,6 +16,8 @@ Vagrant.configure("2") do |config|
     # upgrade to newest packages
     apt-get update
     apt-get upgrade -y
+
+    apt-get install -y gcc
   SHELL
 
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
