@@ -2,34 +2,25 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"log"
 	"os"
 )
 
-func main() {
-	fmt.Println(".intel_syntax noprefix")
-	fmt.Println(".global main")
-	fmt.Println("main:")
+var (
+	ErrInvalidCharacter = errors.New("予期しない文字です")
+)
 
-	var num []byte
-	var c byte
-	var err error
+func readNum(rd *bufio.Reader) (num []byte, c byte, err error) {
 	zero := byte('0')
 	nine := byte('9')
-	plus := byte('+')
-	minus := byte('-')
-	rd := bufio.NewReader(os.Stdin)
 
 	for {
 		c, err = rd.ReadByte()
 		if err != nil {
-			if err == io.EOF {
-				break
-			} else {
-				log.Fatal(err)
-			}
+			break
 		}
 
 		if zero <= c && c <= nine {
@@ -39,43 +30,50 @@ func main() {
 		}
 	}
 	if len(num) == 0 {
-		log.Fatal("予期しない文字です:", c)
-	}
-	fmt.Println("  add rax,", string(num))
-
-	for {
-		if c == plus {
-			op := "add"
-		} else if c == minus {
-			op := "sub"
-		} else {
-			log.Fatal("予期しない文字です:", c)
-		}
+		err = ErrInvalidCharacter
 	}
 
-	/*
-	if len(os.Args) != 2 {
-		log.Fatal("引数の個数が正しくありません")
-	}
+	return
+}
 
+func main() {
 	fmt.Println(".intel_syntax noprefix")
 	fmt.Println(".global main")
 	fmt.Println("main:")
 
-	var v int
-	s := os.Args[1]
+	plus := byte('+')
+	minus := byte('-')
+	rd := bufio.NewReader(os.Stdin)
 
-	n, err := fmt.Sscanf(os.Args[1], "%d%s", &v, &s)
-	if err != nil {
-		fmt.Println("code", err.Error())
+	num, c, err := readNum(rd)
+	if err != nil && err != io.EOF {
 		log.Fatal(err)
 	}
-	// fmt.Printf("  mov rax, %d\n", v)
-	fmt.Println("n is", n)
-	fmt.Println("err is", err)
-	fmt.Println("v is", v)
-	fmt.Println("s is", s)
+	fmt.Println("  add rax,", string(num))
+	if err == io.EOF {
+		fmt.Println("  ret")
+		return
+	}
+
+	for {
+		var op string
+		if c == plus {
+			op = "add"
+		} else if c == minus {
+			op = "sub"
+		} else {
+			log.Fatal("予期しない文字です:", c)
+		}
+
+		num, c, err = readNum(rd)
+		if err != nil && err != io.EOF {
+			log.Fatal(err)
+		}
+		fmt.Println(" ", op, "rax,", string(num))
+		if err == io.EOF {
+			break
+		}
+	}
 
 	fmt.Println("  ret")
-	*/
 }
