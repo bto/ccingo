@@ -49,7 +49,7 @@ func main() {
 	if err != nil && err != io.EOF {
 		log.Fatal(err)
 	}
-	fmt.Println("  add rax,", string(num))
+	fmt.Println("  mov rax,", string(num))
 	if err == io.EOF {
 		fmt.Println("  ret")
 		return
