@@ -54,11 +54,16 @@ func tokenize(rd *bufio.Reader) (tks []token) {
 			continue
 		}
 
-		log.Fatal("トークナイズできません:", c)
+		log.Fatal("トークナイズできません: ", string([]byte{c}))
 	}
-	if err != nil && err != io.EOF {
+	if err != io.EOF {
 		log.Fatal(err)
 	}
+
+	tk = token {
+		ty: TK_EOF,
+	}
+	tks = append(tks, tk)
 
 	return
 }
@@ -90,8 +95,44 @@ func tokenizeNum(rd *bufio.Reader, v byte) (tk token, c byte, err error) {
 	return
 }
 
+func errorToken(tk token) {
+	log.Fatal("予期しないトークンです: ", string(tk.input))
+}
+
 func main() {
 	rd := bufio.NewReader(os.Stdin)
 	tks := tokenize(rd)
-	fmt.Println(tks)
+
+	fmt.Println(".intel_syntax noprefix")
+	fmt.Println(".global main")
+	fmt.Println("main:")
+
+	if tks[0].ty != TK_NUM {
+		errorToken(tks[0])
+	}
+	fmt.Println("  mov rax,", tks[0].val)
+
+	for i := 1; tks[i].ty != TK_EOF; i++ {
+		if tks[i].ty == '+' {
+			i++
+			if tks[i].ty != TK_NUM {
+				errorToken(tks[i])
+			}
+			fmt.Println("  add rax,", tks[i].val)
+			continue
+		}
+
+		if tks[i].ty == '-' {
+			i++
+			if tks[i].ty != TK_NUM {
+				errorToken(tks[i])
+			}
+			fmt.Println("  sub rax,", tks[i].val)
+			continue
+		}
+
+		errorToken(tks[i])
+	}
+
+	fmt.Println("  ret")
 }
