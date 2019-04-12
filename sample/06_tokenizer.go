@@ -16,7 +16,7 @@ const (
 
 type token struct {
 	ty, val int
-	input []byte
+	input   []byte
 }
 
 func tokenize(rd *bufio.Reader) (tks []token) {
@@ -38,8 +38,8 @@ func tokenize(rd *bufio.Reader) (tks []token) {
 		}
 
 		if c == plus || c == minus {
-			tk := token {
-				ty: int(c),
+			tk := token{
+				ty:    int(c),
 				input: []byte{c},
 			}
 			tks = append(tks, tk)
@@ -60,7 +60,7 @@ func tokenize(rd *bufio.Reader) (tks []token) {
 		log.Fatal(err)
 	}
 
-	tk = token {
+	tk = token{
 		ty: TK_EOF,
 	}
 	tks = append(tks, tk)
@@ -86,9 +86,9 @@ func tokenizeNum(rd *bufio.Reader, v byte) (tk token, c byte, err error) {
 		log.Fatal(err)
 	}
 
-	tk = token {
-		ty: TK_NUM,
-		val: val,
+	tk = token{
+		ty:    TK_NUM,
+		val:   val,
 		input: num,
 	}
 
