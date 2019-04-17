@@ -128,12 +128,12 @@ func (tks *tokens) next() token {
 	return tks.tks[tks.i]
 }
 
-func add(tks *tokens) (*node) {
+func add(tks *tokens) *node {
 	nd := num(tks)
 	return addx(tks, nd)
 }
 
-func addx(tks *tokens, nd *node) (*node) {
+func addx(tks *tokens, nd *node) *node {
 	switch {
 	case tks.consume('+'):
 		ndNum := num(tks)
@@ -157,7 +157,7 @@ func addx(tks *tokens, nd *node) (*node) {
 
 }
 
-func num(tks *tokens) (*node) {
+func num(tks *tokens) *node {
 	tk := tks.current()
 	if tk.ty != TK_NUM {
 		log.Fatal("数値ではないトークンです: ", string(tk.input))
@@ -202,7 +202,7 @@ func main() {
 	fmt.Println(".global main")
 	fmt.Println("main:")
 
-	gen(nd);
+	gen(nd)
 
 	fmt.Println("  pop rax")
 	fmt.Println("  ret")
