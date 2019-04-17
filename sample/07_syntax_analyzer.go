@@ -129,28 +129,32 @@ func (tks *tokens) next() token {
 }
 
 func add(tks *tokens) (*node) {
-	return addx(tks, num(tks))
+	nd := num(tks)
+	return addx(tks, nd)
 }
 
 func addx(tks *tokens, nd *node) (*node) {
-	for {
-		switch {
-		case tks.consume('+'):
-			nd = &node{
-				ty:  '+',
-				lhs: nd,
-				rhs: addx(tks, num(tks)),
-			}
-		case tks.consume('-'):
-			nd = &node{
-				ty:  '-',
-				lhs: nd,
-				rhs: addx(tks, num(tks)),
-			}
-		default:
-			return nd
+	switch {
+	case tks.consume('+'):
+		ndNum := num(tks)
+		nd = &node{
+			ty:  '+',
+			lhs: nd,
+			rhs: ndNum,
 		}
+		return addx(tks, nd)
+	case tks.consume('-'):
+		ndNum := num(tks)
+		nd = &node{
+			ty:  '-',
+			lhs: nd,
+			rhs: ndNum,
+		}
+		return addx(tks, nd)
+	default:
+		return nd
 	}
+
 }
 
 func num(tks *tokens) (*node) {
