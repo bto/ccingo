@@ -166,11 +166,40 @@ func num(tks *tokens) (*node) {
 	}
 }
 
+func gen(nd *node) {
+	if nd.ty == ND_NUM {
+		fmt.Println("  push", nd.val)
+		return
+	}
+
+	gen(nd.lhs)
+	gen(nd.rhs)
+
+	fmt.Println("  pop rdi")
+	fmt.Println("  pop rax")
+
+	switch nd.ty {
+	case '+':
+		fmt.Println("  add rax, rdi")
+	case '-':
+		fmt.Println("  sub rax, rdi")
+	}
+
+	fmt.Println("  push rax")
+}
+
 func main() {
 	rd := bufio.NewReader(os.Stdin)
 	tks := tokenize(rd)
-	fmt.Println(tks)
 
 	nd := add(tks)
-	fmt.Println(nd)
+
+	fmt.Println(".intel_syntax noprefix")
+	fmt.Println(".global main")
+	fmt.Println("main:")
+
+	gen(nd);
+
+	fmt.Println("  pop rax")
+	fmt.Println("  ret")
 }
