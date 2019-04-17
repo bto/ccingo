@@ -3,7 +3,7 @@ add: add "+" num
 add: add "-" num
 
 
-add: num add'
-add':
-add': "+" num add'
-add': "-" num add'
+add: num addx
+addx:
+addx: "+" num addx
+addx: "-" num addx

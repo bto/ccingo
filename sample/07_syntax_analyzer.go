@@ -124,18 +124,22 @@ func (tks *tokens) next() token {
 	return tks.tks[tks.i]
 }
 
-func add(tks *tokens) (nd *node) {
+func add(tks *tokens) (*node) {
 	var tk token
 
 	if tk = tks.current(); tk.ty != TK_NUM {
 		log.Fatal("数値ではないトークンです: ", string(tk.input))
 	}
-	nd = &node{
-		ty:  tk.ty,
+	nd := &node{
+		ty:  ND_NUM,
 		val: tk.val,
 	}
 
-	for tk = tks.next(); ; {
+	return addx(tks, nd)
+}
+
+func addx(tks *tokens, nd *node) (*node) {
+	for tks.next(); ; {
 		switch {
 		case tks.consume('+'):
 			nd = &node{
@@ -150,7 +154,7 @@ func add(tks *tokens) (nd *node) {
 				rhs: add(tks),
 			}
 		default:
-			return
+			return nd
 		}
 	}
 }
