@@ -101,6 +101,10 @@ func tokenizeNum(rd *bufio.Reader, v byte) (tk token, c byte, err error) {
 	return
 }
 
+const (
+	ND_NUM = iota + 256
+)
+
 type node struct {
 	ty, val  int
 	lhs, rhs *node
@@ -125,37 +129,40 @@ func (tks *tokens) next() token {
 }
 
 func add(tks *tokens) (*node) {
-	var tk token
-
-	if tk = tks.current(); tk.ty != TK_NUM {
-		log.Fatal("数値ではないトークンです: ", string(tk.input))
-	}
-	nd := &node{
-		ty:  ND_NUM,
-		val: tk.val,
-	}
-
-	return addx(tks, nd)
+	return addx(tks, num(tks))
 }
 
 func addx(tks *tokens, nd *node) (*node) {
-	for tks.next(); ; {
+	for {
 		switch {
 		case tks.consume('+'):
 			nd = &node{
 				ty:  '+',
 				lhs: nd,
-				rhs: add(tks),
+				rhs: addx(tks, num(tks)),
 			}
 		case tks.consume('-'):
 			nd = &node{
 				ty:  '-',
 				lhs: nd,
-				rhs: add(tks),
+				rhs: addx(tks, num(tks)),
 			}
 		default:
 			return nd
 		}
+	}
+}
+
+func num(tks *tokens) (*node) {
+	tk := tks.current()
+	if tk.ty != TK_NUM {
+		log.Fatal("数値ではないトークンです: ", string(tk.input))
+	}
+
+	tks.next()
+	return &node{
+		ty:  ND_NUM,
+		val: tk.val,
 	}
 }
 
