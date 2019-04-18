@@ -154,7 +154,6 @@ func addx(tks *tokens, nd *node) *node {
 	default:
 		return nd
 	}
-
 }
 
 func num(tks *tokens) *node {

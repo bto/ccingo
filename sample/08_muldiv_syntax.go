@@ -34,6 +34,8 @@ func tokenize(rd *bufio.Reader) (tks *tokens) {
 	lf := byte('\n')
 	plus := byte('+')
 	minus := byte('-')
+	mul := byte('*')
+	div := byte('/')
 	zero := byte('0')
 	nine := byte('9')
 
@@ -43,7 +45,7 @@ func tokenize(rd *bufio.Reader) (tks *tokens) {
 			continue
 		}
 
-		if c == plus || c == minus {
+		if c == plus || c == minus || c == mul || c == div {
 			tk := token{
 				ty:    int(c),
 				input: []byte{c},
@@ -129,32 +131,59 @@ func (tks *tokens) next() token {
 }
 
 func add(tks *tokens) *node {
-	nd := num(tks)
+	nd := mul(tks)
 	return addx(tks, nd)
 }
 
 func addx(tks *tokens, nd *node) *node {
 	switch {
 	case tks.consume('+'):
-		ndNum := num(tks)
+		ndMul := mul(tks)
 		nd = &node{
 			ty:  '+',
 			lhs: nd,
-			rhs: ndNum,
+			rhs: ndMul,
 		}
 		return addx(tks, nd)
 	case tks.consume('-'):
-		ndNum := num(tks)
+		ndMul := mul(tks)
 		nd = &node{
 			ty:  '-',
 			lhs: nd,
-			rhs: ndNum,
+			rhs: ndMul,
 		}
 		return addx(tks, nd)
 	default:
 		return nd
 	}
+}
 
+func mul(tks *tokens) *node {
+	nd := num(tks)
+	return mulx(tks, nd)
+}
+
+func mulx(tks *tokens, nd *node) *node {
+	switch {
+	case tks.consume('*'):
+		ndNum := num(tks)
+		nd = &node{
+			ty:  '*',
+			lhs: nd,
+			rhs: ndNum,
+		}
+		return mulx(tks, nd)
+	case tks.consume('/'):
+		ndNum := num(tks)
+		nd = &node{
+			ty:  '/',
+			lhs: nd,
+			rhs: ndNum,
+		}
+		return mulx(tks, nd)
+	default:
+		return nd
+	}
 }
 
 func num(tks *tokens) *node {
@@ -187,6 +216,11 @@ func gen(nd *node) {
 		fmt.Println("  add rax, rdi")
 	case '-':
 		fmt.Println("  sub rax, rdi")
+	case '*':
+		fmt.Println("  mul rdi")
+	case '/':
+		fmt.Println("  mov rdx, 0")
+		fmt.Println("  div rdi")
 	}
 
 	fmt.Println("  push rax")

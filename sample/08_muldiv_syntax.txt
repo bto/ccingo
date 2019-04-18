@@ -2,8 +2,8 @@ add: mul
 add: add "+" mul
 add: add "-" mul
 mul: num
-mul: mul "+" num
-mul: mul "-" num
+mul: mul "*" num
+mul: mul "/" num
 
 
 add: mul addx
@@ -12,5 +12,5 @@ addx: "+" mul addx
 addx: "-" mul addx
 mul: num mulx
 mulx:
-mulx: "+" num mulx
-mulx: "-" num mulx
+mulx: "*" num mulx
+mulx: "/" num mulx
