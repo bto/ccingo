@@ -36,6 +36,8 @@ func tokenize(rd *bufio.Reader) (tks *tokens) {
 	minus := byte('-')
 	mul := byte('*')
 	div := byte('/')
+	lbracket := byte('(')
+	rbracket := byte(')')
 	zero := byte('0')
 	nine := byte('9')
 
@@ -45,7 +47,7 @@ func tokenize(rd *bufio.Reader) (tks *tokens) {
 			continue
 		}
 
-		if c == plus || c == minus || c == mul || c == div {
+		if c == plus || c == minus || c == mul || c == div || c == lbracket || c == rbracket {
 			tk := token{
 				ty:    int(c),
 				input: []byte{c},
@@ -159,30 +161,43 @@ func addx(tks *tokens, nd *node) *node {
 }
 
 func mul(tks *tokens) *node {
-	nd := num(tks)
+	nd := term(tks)
 	return mulx(tks, nd)
 }
 
 func mulx(tks *tokens, nd *node) *node {
 	switch {
 	case tks.consume('*'):
-		ndNum := num(tks)
+		ndTerm := term(tks)
 		nd = &node{
 			ty:  '*',
 			lhs: nd,
-			rhs: ndNum,
+			rhs: ndTerm,
 		}
 		return mulx(tks, nd)
 	case tks.consume('/'):
-		ndNum := num(tks)
+		ndTerm := term(tks)
 		nd = &node{
 			ty:  '/',
 			lhs: nd,
-			rhs: ndNum,
+			rhs: ndTerm,
 		}
 		return mulx(tks, nd)
 	default:
 		return nd
+	}
+}
+
+func term(tks *tokens) *node {
+	switch {
+	case tks.consume('('):
+		nd := add(tks)
+		if !tks.consume(')') {
+			log.Fatal("閉じカッコがありません: ", string(tks.current().input))
+		}
+		return nd
+	default:
+		return num(tks)
 	}
 }
 
