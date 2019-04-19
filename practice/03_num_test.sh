@@ -23,6 +23,5 @@ function try() {
     fi
 }
 
-echo $(basename $0)
 try 1 1
 try 2 2
