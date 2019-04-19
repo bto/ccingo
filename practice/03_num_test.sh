@@ -17,9 +17,9 @@ function try() {
     ret=$?
 
     if [ $ret = $expected ]; then
-        echo "ok: $input => $expected"
+        echo "OK: $input => $expected"
     else
-        echo "NOT OK: $input => $expected"
+        echo "Failed: $input => $expected"
     fi
 }
 
