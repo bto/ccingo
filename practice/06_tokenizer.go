@@ -32,7 +32,7 @@ func tokenize(rd *bufio.Reader) (tks []token) {
 	nine := byte('9')
 
 	for c, err = rd.ReadByte(); err == nil; {
-		if c == space || c == lf {
+		if c == 0 || c == space || c == lf {
 			c, err = rd.ReadByte()
 			continue
 		}
