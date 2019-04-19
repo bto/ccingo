@@ -15,6 +15,6 @@ func main() {
 	fmt.Println(".intel_syntax noprefix")
 	fmt.Println(".global main")
 	fmt.Println("main:")
-	fmt.Printf("  mov rax, %d\n", v)
+	fmt.Println("  mov rax,", v)
 	fmt.Println("  ret")
 }
