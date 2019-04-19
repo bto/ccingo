@@ -10,6 +10,7 @@ fmt:
 
 test:
 	@for f in $(PRACTICE_DIR)/*.sh; do \
+	  [ ! -x $$f ] && continue; \
 	  echo $$(basename $$f); \
 	  $$f; \
 	  echo; \
