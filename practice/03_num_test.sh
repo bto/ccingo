@@ -1,9 +1,9 @@
 #!/bin/bash
-SRC_DIR=$(dirname $0)
-TOP_DIR=$SRC_DIR/..
+PRACTICE_DIR=$(dirname $0)
+TOP_DIR=$PRACTICE_DIR/..
 BUILD_DIR=$TOP_DIR/build
 
-GO_FILE=$SRC_DIR/03_num.go
+GO_FILE=$PRACTICE_DIR/03_num.go
 AS_FILE=$BUILD_DIR/03_num.s
 EXEC_FILE=$BUILD_DIR/03_num
 
