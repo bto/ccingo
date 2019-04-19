@@ -14,16 +14,13 @@ var (
 )
 
 func readNum(rd *bufio.Reader) (num []byte, c byte, err error) {
-	zero := byte('0')
-	nine := byte('9')
-
 	for {
 		c, err = rd.ReadByte()
 		if err != nil {
 			break
 		}
 
-		if zero <= c && c <= nine {
+		if byte('0') <= c && c <= byte('9') {
 			num = append(num, c)
 		} else {
 			break
@@ -41,8 +38,6 @@ func main() {
 	fmt.Println(".global main")
 	fmt.Println("main:")
 
-	plus := byte('+')
-	minus := byte('-')
 	rd := bufio.NewReader(os.Stdin)
 
 	num, c, err := readNum(rd)
@@ -57,9 +52,9 @@ func main() {
 
 	for {
 		var op string
-		if c == plus {
+		if c == byte('+') {
 			op = "add"
-		} else if c == minus {
+		} else if c == byte('-') {
 			op = "sub"
 		} else {
 			log.Fatal("予期しない文字です:", c)
