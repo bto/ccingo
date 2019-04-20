@@ -1,0 +1,20 @@
+add: mul
+add: add "+" mul
+add: add "-" mul
+mul: term
+mul: mul "*" term
+mul: mul "/" term
+term: num
+term: "(" add ")"
+
+
+add: mul addx
+addx:
+addx: "+" mul addx
+addx: "-" mul addx
+mul: term mulx
+mulx:
+mulx: "*" term mulx
+mulx: "/" term mulx
+term: num
+term: "(" add ")"
