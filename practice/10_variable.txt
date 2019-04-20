@@ -1,3 +1,8 @@
+program:
+program: stmt program
+stmt: assign ";"
+assign: add
+assign: add "=" assign
 add: mul
 add: add "+" mul
 add: add "-" mul
@@ -5,9 +10,15 @@ mul: term
 mul: mul "*" term
 mul: mul "/" term
 term: num
+term: ident
 term: "(" add ")"
 
 
+program:
+program: stmt program
+stmt: assign ";"
+assign: add
+assign: add "=" assign
 add: mul addx
 addx:
 addx: "+" mul addx
@@ -17,4 +28,5 @@ mulx:
 mulx: "*" term mulx
 mulx: "/" term mulx
 term: num
+term: ident
 term: "(" add ")"
