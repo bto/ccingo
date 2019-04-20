@@ -126,11 +126,42 @@ func tokenizeNum(rd *bufio.Reader, v byte) (tk token, c byte, err error) {
 
 const (
 	ND_NUM = iota + 256
+	ND_IDENT
 )
 
 type node struct {
 	ty, val  int
+	name     []byte
 	lhs, rhs *node
+}
+
+func program(tks *tokens) (nds []node) {
+	for tks.current().ty != TK_EOF {
+		nds = append(nds, *stmt(tks))
+	}
+	return
+}
+
+func stmt(tks *tokens) *node {
+	nd := assign(tks)
+	if !tks.consume(';') {
+		log.Fatal("';'ではないトークンです:", string(tks.current().input))
+	}
+	return nd
+}
+
+func assign(tks *tokens) *node {
+	nd := add(tks)
+	if !tks.consume('=') {
+		return nd
+	}
+
+	nd = &node{
+		ty:  '=',
+		lhs: nd,
+		rhs: assign(tks),
+	}
+	return nd
 }
 
 func add(tks *tokens) *node {
@@ -246,13 +277,15 @@ func main() {
 	rd := bufio.NewReader(os.Stdin)
 	tks := tokenize(rd)
 
-	nd := add(tks)
+	nds := program(tks)
 
 	fmt.Println(".intel_syntax noprefix")
 	fmt.Println(".global main")
 	fmt.Println("main:")
 
-	gen(nd)
+	for _, nd := range nds {
+		gen(&nd)
+	}
 
 	fmt.Println("  pop rax")
 	fmt.Println("  ret")
