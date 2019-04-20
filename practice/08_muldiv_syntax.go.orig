@@ -24,28 +24,6 @@ type tokens struct {
 	i   int
 }
 
-func (tks *tokens) append(tk token) {
-	tks.tks = append(tks.tks, tk)
-}
-
-func (tks *tokens) consume(ty int) bool {
-	if tks.tks[tks.i].ty == ty {
-		tks.i++
-		return true
-	} else {
-		return false
-	}
-}
-
-func (tks *tokens) current() token {
-	return tks.tks[tks.i]
-}
-
-func (tks *tokens) next() token {
-	tks.i++
-	return tks.tks[tks.i]
-}
-
 func tokenize(rd *bufio.Reader) (tks *tokens) {
 	var c byte
 	var err error
@@ -57,12 +35,12 @@ func tokenize(rd *bufio.Reader) (tks *tokens) {
 		case 0, byte(' '), byte('\n'):
 			c, err = rd.ReadByte()
 			continue
-		case byte('+'), byte('-'), byte('*'), byte('/'), byte('('), byte(')'):
+		case byte('+'), byte('-'), byte('*'), byte('/'):
 			tk := token{
 				ty:    int(c),
 				input: []byte{c},
 			}
-			tks.append(tk)
+			tks.tks = append(tks.tks, tk)
 
 			c, err = rd.ReadByte()
 			continue
@@ -70,7 +48,7 @@ func tokenize(rd *bufio.Reader) (tks *tokens) {
 
 		if byte('0') <= c && c <= byte('9') {
 			tk, c, err = tokenizeNum(rd, c)
-			tks.append(tk)
+			tks.tks = append(tks.tks, tk)
 			continue
 		}
 
@@ -83,7 +61,7 @@ func tokenize(rd *bufio.Reader) (tks *tokens) {
 	tk = token{
 		ty: TK_EOF,
 	}
-	tks.append(tk)
+	tks.tks = append(tks.tks, tk)
 
 	return
 }
@@ -121,6 +99,24 @@ type node struct {
 	lhs, rhs *node
 }
 
+func (tks *tokens) consume(ty int) bool {
+	if tks.tks[tks.i].ty == ty {
+		tks.i++
+		return true
+	} else {
+		return false
+	}
+}
+
+func (tks *tokens) current() token {
+	return tks.tks[tks.i]
+}
+
+func (tks *tokens) next() token {
+	tks.i++
+	return tks.tks[tks.i]
+}
+
 func add(tks *tokens) *node {
 	nd := mul(tks)
 	return addx(tks, nd)
@@ -150,43 +146,30 @@ func addx(tks *tokens, nd *node) *node {
 }
 
 func mul(tks *tokens) *node {
-	nd := term(tks)
+	nd := num(tks)
 	return mulx(tks, nd)
 }
 
 func mulx(tks *tokens, nd *node) *node {
 	switch {
 	case tks.consume('*'):
-		ndTerm := term(tks)
+		ndNum := num(tks)
 		nd = &node{
 			ty:  '*',
 			lhs: nd,
-			rhs: ndTerm,
+			rhs: ndNum,
 		}
 		return mulx(tks, nd)
 	case tks.consume('/'):
-		ndTerm := term(tks)
+		ndNum := num(tks)
 		nd = &node{
 			ty:  '/',
 			lhs: nd,
-			rhs: ndTerm,
+			rhs: ndNum,
 		}
 		return mulx(tks, nd)
 	default:
 		return nd
-	}
-}
-
-func term(tks *tokens) *node {
-	switch {
-	case tks.consume('('):
-		nd := add(tks)
-		if !tks.consume(')') {
-			log.Fatal("閉じカッコがありません: ", string(tks.current().input))
-		}
-		return nd
-	default:
-		return num(tks)
 	}
 }
 

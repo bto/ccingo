@@ -11,6 +11,7 @@ import (
 
 const (
 	TK_NUM = iota + 256
+	TK_IDENT
 	TK_EOF
 )
 
@@ -24,6 +25,28 @@ type tokens struct {
 	i   int
 }
 
+func (tks *tokens) append(tk token) {
+	tks.tks = append(tks.tks, tk)
+}
+
+func (tks *tokens) consume(ty int) bool {
+	if tks.tks[tks.i].ty == ty {
+		tks.i++
+		return true
+	} else {
+		return false
+	}
+}
+
+func (tks *tokens) current() token {
+	return tks.tks[tks.i]
+}
+
+func (tks *tokens) next() token {
+	tks.i++
+	return tks.tks[tks.i]
+}
+
 func tokenize(rd *bufio.Reader) (tks *tokens) {
 	var c byte
 	var err error
@@ -35,12 +58,12 @@ func tokenize(rd *bufio.Reader) (tks *tokens) {
 		case 0, byte(' '), byte('\n'):
 			c, err = rd.ReadByte()
 			continue
-		case byte('+'), byte('-'), byte('*'), byte('/'), byte('('), byte(')'):
+		case byte('+'), byte('-'), byte('*'), byte('/'), byte('('), byte(')'), byte(';'):
 			tk := token{
 				ty:    int(c),
 				input: []byte{c},
 			}
-			tks.tks = append(tks.tks, tk)
+			tks.append(tk)
 
 			c, err = rd.ReadByte()
 			continue
@@ -48,7 +71,18 @@ func tokenize(rd *bufio.Reader) (tks *tokens) {
 
 		if byte('0') <= c && c <= byte('9') {
 			tk, c, err = tokenizeNum(rd, c)
+			tks.append(tk)
+			continue
+		}
+
+		if byte('a') <= c && c <= byte('z') {
+			tk := token{
+				ty:    TK_IDENT,
+				input: []byte{c},
+			}
 			tks.tks = append(tks.tks, tk)
+
+			c, err = rd.ReadByte()
 			continue
 		}
 
@@ -61,7 +95,7 @@ func tokenize(rd *bufio.Reader) (tks *tokens) {
 	tk = token{
 		ty: TK_EOF,
 	}
-	tks.tks = append(tks.tks, tk)
+	tks.append(tk)
 
 	return
 }
@@ -97,24 +131,6 @@ const (
 type node struct {
 	ty, val  int
 	lhs, rhs *node
-}
-
-func (tks *tokens) consume(ty int) bool {
-	if tks.tks[tks.i].ty == ty {
-		tks.i++
-		return true
-	} else {
-		return false
-	}
-}
-
-func (tks *tokens) current() token {
-	return tks.tks[tks.i]
-}
-
-func (tks *tokens) next() token {
-	tks.i++
-	return tks.tks[tks.i]
 }
 
 func add(tks *tokens) *node {
