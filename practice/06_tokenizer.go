@@ -61,12 +61,9 @@ func tokenize(rd *bufio.Reader) (tks []token) {
 }
 
 func tokenizeNum(rd *bufio.Reader, v byte) (tk token, c byte, err error) {
-	zero := byte('0')
-	nine := byte('9')
-
 	var num []byte
 	for c = v; err == nil; c, err = rd.ReadByte() {
-		if c < zero || nine < c {
+		if c < byte('0') || byte('9') < c {
 			break
 		}
 
