@@ -30,24 +30,12 @@ func tokenize(rd *bufio.Reader) (tks *tokens) {
 	var tk token
 	tks = &tokens{}
 
-	space := byte(' ')
-	lf := byte('\n')
-	plus := byte('+')
-	minus := byte('-')
-	mul := byte('*')
-	div := byte('/')
-	lbracket := byte('(')
-	rbracket := byte(')')
-	zero := byte('0')
-	nine := byte('9')
-
 	for c, err = rd.ReadByte(); err == nil; {
-		if c == 0 || c == space || c == lf {
+		switch c {
+		case 0, byte(' '), byte('\n'):
 			c, err = rd.ReadByte()
 			continue
-		}
-
-		if c == plus || c == minus || c == mul || c == div || c == lbracket || c == rbracket {
+		case byte('+'), byte('-'), byte('*'), byte('/'), byte('('), byte(')'):
 			tk := token{
 				ty:    int(c),
 				input: []byte{c},
@@ -58,7 +46,7 @@ func tokenize(rd *bufio.Reader) (tks *tokens) {
 			continue
 		}
 
-		if zero <= c && c <= nine {
+		if byte('0') <= c && c <= byte('9') {
 			tk, c, err = tokenizeNum(rd, c)
 			tks.tks = append(tks.tks, tk)
 			continue
