@@ -12,7 +12,7 @@ function try() {
     expected=$1
     input=$2
 
-    echo -n $input | go run $GO_FILE > $AS_FILE
+    echo -n "$input" | go run $GO_FILE > $AS_FILE
     gcc $AS_FILE -o $EXEC_FILE
     $EXEC_FILE
     ret=$?
