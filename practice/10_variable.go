@@ -221,16 +221,24 @@ func mulx(tks *tokens, nd *node) *node {
 }
 
 func term(tks *tokens) *node {
+	var nd *node
+	tk := tks.current()
+
 	switch {
 	case tks.consume('('):
-		nd := add(tks)
+		nd = add(tks)
 		if !tks.consume(')') {
 			log.Fatal("閉じカッコがありません: ", string(tks.current().input))
 		}
-		return nd
+	case tk.ty == TK_NUM:
+		nd = num(tks)
+	case tk.ty == TK_IDENT:
+		nd = ident(tks)
 	default:
-		return num(tks)
+		log.Fatal("不正なトークンです: ", string(tk.input))
 	}
+
+	return nd
 }
 
 func num(tks *tokens) *node {
@@ -243,6 +251,19 @@ func num(tks *tokens) *node {
 	return &node{
 		ty:  ND_NUM,
 		val: tk.val,
+	}
+}
+
+func ident(tks *tokens) *node {
+	tk := tks.current()
+	if tk.ty != TK_IDENT {
+		log.Fatal("変数ではないトークンです: ", string(tk.input))
+	}
+
+	tks.next()
+	return &node{
+		ty:  ND_IDENT,
+		name: tk.input,
 	}
 }
 
