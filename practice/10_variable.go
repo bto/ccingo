@@ -330,6 +330,10 @@ func main() {
 	fmt.Println(".global main")
 	fmt.Println("main:")
 
+	fmt.Println("  push rbp")
+	fmt.Println("  mov rbp, rsp")
+	fmt.Println("  sub rsp, 208")
+
 	for _, nd := range nds {
 		gen(&nd)
 		fmt.Println("  pop rax")
