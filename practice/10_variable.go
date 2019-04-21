@@ -142,26 +142,27 @@ func program(tks *tokens) (nds []node) {
 	return
 }
 
-func stmt(tks *tokens) *node {
-	nd := assign(tks)
+func stmt(tks *tokens) (nd *node) {
+	nd = assign(tks)
 	if !tks.consume(';') {
 		log.Fatal("';'ではないトークンです:", string(tks.current().input))
 	}
-	return nd
+	return
 }
 
 func assign(tks *tokens) *node {
 	nd := add(tks)
+
 	if !tks.consume('=') {
 		return nd
 	}
 
-	nd = &node{
+	ndAssign := assign(tks)
+	return &node{
 		ty:  '=',
 		lhs: nd,
-		rhs: assign(tks),
+		rhs: ndAssign,
 	}
-	return nd
 }
 
 func add(tks *tokens) *node {
@@ -220,8 +221,7 @@ func mulx(tks *tokens, nd *node) *node {
 	}
 }
 
-func term(tks *tokens) *node {
-	var nd *node
+func term(tks *tokens) (nd *node) {
 	tk := tks.current()
 
 	switch {
@@ -230,15 +230,15 @@ func term(tks *tokens) *node {
 		if !tks.consume(')') {
 			log.Fatal("閉じカッコがありません: ", string(tks.current().input))
 		}
+		return
 	case tk.ty == TK_NUM:
-		nd = num(tks)
+		return num(tks)
 	case tk.ty == TK_IDENT:
-		nd = ident(tks)
-	default:
-		log.Fatal("不正なトークンです: ", string(tk.input))
+		return ident(tks)
 	}
 
-	return nd
+	log.Fatal("不正なトークンです: ", string(tk.input))
+	return
 }
 
 func num(tks *tokens) *node {
