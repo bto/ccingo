@@ -268,8 +268,23 @@ func ident(tks *tokens) *node {
 }
 
 func gen(nd *node) {
-	if nd.ty == ND_NUM {
+	switch nd.ty {
+	case ND_NUM:
 		fmt.Println("  push", nd.val)
+		return
+	case ND_IDENT:
+		genLval(nd)
+		fmt.Println("  pop rax")
+		fmt.Println("  mov rax, [rax]")
+		fmt.Println("  push rax")
+		return
+	case int('='):
+		genLval(nd.lhs)
+		gen(nd.rhs)
+		fmt.Println("  pop rdi")
+		fmt.Println("  pop rax")
+		fmt.Println("  mov [rax], rdi")
+		fmt.Println("  push rdi")
 		return
 	}
 
@@ -294,6 +309,17 @@ func gen(nd *node) {
 	fmt.Println("  push rax")
 }
 
+func genLval(nd *node) {
+	if nd.ty != ND_IDENT {
+		log.Fatal("代入の左辺値が変数ではありません")
+	}
+
+	offset := (byte('z') - nd.name[0] + 1) * 8
+	fmt.Println("  mov rax, rbp")
+	fmt.Println("  sub rax,", offset)
+	fmt.Println("  push rax")
+}
+
 func main() {
 	rd := bufio.NewReader(os.Stdin)
 	tks := tokenize(rd)
@@ -306,8 +332,10 @@ func main() {
 
 	for _, nd := range nds {
 		gen(&nd)
+		fmt.Println("  pop rax")
 	}
 
-	fmt.Println("  pop rax")
+	fmt.Println("  mov rsp, rbp")
+	fmt.Println("  pop rbp")
 	fmt.Println("  ret")
 }
