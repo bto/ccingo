@@ -262,7 +262,7 @@ func ident(tks *tokens) *node {
 
 	tks.next()
 	return &node{
-		ty:  ND_IDENT,
+		ty:   ND_IDENT,
 		name: tk.input,
 	}
 }
