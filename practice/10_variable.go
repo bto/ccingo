@@ -80,7 +80,7 @@ func tokenize(rd *bufio.Reader) (tks *tokens) {
 				ty:    TK_IDENT,
 				input: []byte{c},
 			}
-			tks.tks = append(tks.tks, tk)
+			tks.append(tk)
 
 			c, err = rd.ReadByte()
 			continue

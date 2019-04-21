@@ -1,6 +1,7 @@
 program:
 program: stmt program
 stmt: assign ";"
+stmt: return assign ";"
 assign: add
 assign: add "=" assign
 add: mul

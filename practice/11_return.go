@@ -12,6 +12,7 @@ import (
 const (
 	TK_NUM = iota + 256
 	TK_IDENT
+	TK_RETURN
 	TK_EOF
 )
 
@@ -51,6 +52,7 @@ func tokenize(rd *bufio.Reader) (tks *tokens) {
 	var c byte
 	var err error
 	var tk token
+	var name []byte
 	tks = &tokens{}
 
 	for c, err = rd.ReadByte(); err == nil; {
@@ -76,14 +78,25 @@ func tokenize(rd *bufio.Reader) (tks *tokens) {
 		}
 
 		if byte('a') <= c && c <= byte('z') {
+			name, c, err = tokenizeAlphabet(rd, c)
 			tk := token{
-				ty:    TK_IDENT,
-				input: []byte{c},
+				input: name,
 			}
-			tks.tks = append(tks.tks, tk)
 
-			c, err = rd.ReadByte()
-			continue
+			if len(name) == 1 {
+				tk.ty = TK_IDENT
+				tks.append(tk)
+				continue
+			}
+
+			switch string(name) {
+			case "return":
+				tk.ty = TK_RETURN
+				tks.append(tk)
+				continue
+			}
+
+			log.Fatal("トークナイズできません: ", name)
 		}
 
 		log.Fatal("トークナイズできません: ", string([]byte{c}))
@@ -96,6 +109,18 @@ func tokenize(rd *bufio.Reader) (tks *tokens) {
 		ty: TK_EOF,
 	}
 	tks.append(tk)
+
+	return
+}
+
+func tokenizeAlphabet(rd *bufio.Reader, v byte) (name []byte, c byte, err error) {
+	for c = v; err == nil; c, err = rd.ReadByte() {
+		if c < byte('a') || byte('z') < c {
+			break
+		}
+
+		name = append(name, c)
+	}
 
 	return
 }
@@ -127,6 +152,7 @@ func tokenizeNum(rd *bufio.Reader, v byte) (tk token, c byte, err error) {
 const (
 	ND_NUM = iota + 256
 	ND_IDENT
+	ND_RETURN
 )
 
 type node struct {
@@ -143,10 +169,20 @@ func program(tks *tokens) (nds []node) {
 }
 
 func stmt(tks *tokens) (nd *node) {
-	nd = assign(tks)
+	if tks.consume(TK_RETURN) {
+		ndAssign := assign(tks)
+		nd = &node{
+			ty: ND_RETURN,
+			lhs: ndAssign,
+		}
+	} else {
+		nd = assign(tks)
+	}
+
 	if !tks.consume(';') {
 		log.Fatal("';'ではないトークンです:", string(tks.current().input))
 	}
+
 	return
 }
 
@@ -277,6 +313,13 @@ func gen(nd *node) {
 		fmt.Println("  pop rax")
 		fmt.Println("  mov rax, [rax]")
 		fmt.Println("  push rax")
+		return
+	case ND_RETURN:
+		gen(nd.lhs)
+		fmt.Println("  pop rax")
+		fmt.Println("  mov rsp, rbp")
+		fmt.Println("  pop rbp")
+		fmt.Println("  ret")
 		return
 	case int('='):
 		genLval(nd.lhs)
