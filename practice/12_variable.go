@@ -172,7 +172,7 @@ func stmt(tks *tokens) (nd *node) {
 	if tks.consume(TK_RETURN) {
 		ndAssign := assign(tks)
 		nd = &node{
-			ty: ND_RETURN,
+			ty:  ND_RETURN,
 			lhs: ndAssign,
 		}
 	} else {
@@ -298,7 +298,7 @@ func ident(tks *tokens) *node {
 
 	tks.next()
 	return &node{
-		ty:  ND_IDENT,
+		ty:   ND_IDENT,
 		name: tk.input,
 	}
 }
