@@ -12,7 +12,7 @@ mul: mul "*" term
 mul: mul "/" term
 term: num
 term: ident
-term: "(" add ")"
+term: "(" assign ")"
 
 
 program:
@@ -30,4 +30,4 @@ mulx: "*" term mulx
 mulx: "/" term mulx
 term: num
 term: ident
-term: "(" add ")"
+term: "(" assign ")"
