@@ -157,7 +157,7 @@ const (
 
 type node struct {
 	ty, val  int
-	name     []byte
+	name     string
 	lhs, rhs *node
 }
 
@@ -299,7 +299,7 @@ func ident(tks *tokens) *node {
 	tks.next()
 	return &node{
 		ty:   ND_IDENT,
-		name: tk.input,
+		name: string(tk.input),
 	}
 }
 
