@@ -226,14 +226,14 @@ func addx(tks *tokens, nd *node) *node {
 }
 
 func mul(tks *tokens) *node {
-	nd := term(tks)
+	nd := unary(tks)
 	return mulx(tks, nd)
 }
 
 func mulx(tks *tokens, nd *node) *node {
 	switch {
 	case tks.consume('*'):
-		ndTerm := term(tks)
+		ndTerm := unary(tks)
 		nd = &node{
 			ty:  '*',
 			lhs: nd,
@@ -241,7 +241,7 @@ func mulx(tks *tokens, nd *node) *node {
 		}
 		return mulx(tks, nd)
 	case tks.consume('/'):
-		ndTerm := term(tks)
+		ndTerm := unary(tks)
 		nd = &node{
 			ty:  '/',
 			lhs: nd,
@@ -250,6 +250,26 @@ func mulx(tks *tokens, nd *node) *node {
 		return mulx(tks, nd)
 	default:
 		return nd
+	}
+}
+
+func unary(tks *tokens) (nd *node) {
+	switch {
+	case tks.consume('+'):
+		return term(tks)
+	case tks.consume('-'):
+		ndZero := &node{
+			ty:  ND_NUM,
+			val: 0,
+		}
+		ndTerm := term(tks)
+		return &node{
+			ty: '-',
+			lhs: ndZero,
+			rhs: ndTerm,
+		}
+	default:
+		return term(tks)
 	}
 }
 
