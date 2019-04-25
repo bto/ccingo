@@ -83,12 +83,6 @@ func tokenize(rd *bufio.Reader) (tks *tokens) {
 				input: name,
 			}
 
-			if len(name) == 1 {
-				tk.ty = TK_IDENT
-				tks.append(tk)
-				continue
-			}
-
 			switch string(name) {
 			case "return":
 				tk.ty = TK_RETURN
@@ -96,7 +90,9 @@ func tokenize(rd *bufio.Reader) (tks *tokens) {
 				continue
 			}
 
-			log.Fatal("トークナイズできません: ", name)
+			tk.ty = TK_IDENT
+			tks.append(tk)
+			continue
 		}
 
 		log.Fatal("トークナイズできません: ", string([]byte{c}))
@@ -157,7 +153,7 @@ const (
 
 type node struct {
 	ty, val  int
-	name     []byte
+	name     string
 	lhs, rhs *node
 }
 
@@ -299,31 +295,59 @@ func ident(tks *tokens) *node {
 	tks.next()
 	return &node{
 		ty:   ND_IDENT,
-		name: tk.input,
+		name: string(tk.input),
 	}
 }
 
-func gen(nd *node) {
+type variable struct {
+	name   string
+	offset int
+}
+
+type variables struct {
+	offset int
+	vars   map[string]variable
+}
+
+func (vars *variables) add(key string) {
+	vars.offset += 8
+	vars.vars[key] = variable{
+		name: key,
+		offset: vars.offset,
+	}
+}
+
+func (vars *variables) exist(key string) bool {
+	_, ok := vars.vars[key]
+	return ok
+}
+
+func (vars *variables) get(key string) *variable {
+	v, _ := vars.vars[key]
+	return &v
+}
+
+func gen(nd *node, vars *variables) {
 	switch nd.ty {
 	case ND_NUM:
 		fmt.Println("  push", nd.val)
 		return
 	case ND_IDENT:
-		genLval(nd)
+		genLval(nd, vars)
 		fmt.Println("  pop rax")
 		fmt.Println("  mov rax, [rax]")
 		fmt.Println("  push rax")
 		return
 	case ND_RETURN:
-		gen(nd.lhs)
+		gen(nd.lhs, vars)
 		fmt.Println("  pop rax")
 		fmt.Println("  mov rsp, rbp")
 		fmt.Println("  pop rbp")
 		fmt.Println("  ret")
 		return
 	case int('='):
-		genLval(nd.lhs)
-		gen(nd.rhs)
+		genLval(nd.lhs, vars)
+		gen(nd.rhs, vars)
 		fmt.Println("  pop rdi")
 		fmt.Println("  pop rax")
 		fmt.Println("  mov [rax], rdi")
@@ -331,8 +355,8 @@ func gen(nd *node) {
 		return
 	}
 
-	gen(nd.lhs)
-	gen(nd.rhs)
+	gen(nd.lhs, vars)
+	gen(nd.rhs, vars)
 
 	fmt.Println("  pop rdi")
 	fmt.Println("  pop rax")
@@ -352,15 +376,21 @@ func gen(nd *node) {
 	fmt.Println("  push rax")
 }
 
-func genLval(nd *node) {
+func genLval(nd *node, vars *variables) {
 	if nd.ty != ND_IDENT {
 		log.Fatal("代入の左辺値が変数ではありません")
 	}
 
-	offset := (byte('z') - nd.name[0] + 1) * 8
-	fmt.Println("  mov rax, rbp")
-	fmt.Println("  sub rax,", offset)
-	fmt.Println("  push rax")
+	if vars.exist(nd.name) {
+		v := vars.get(nd.name)
+		fmt.Println("  mov rax, rbp")
+		fmt.Println("  sub rax,", v.offset)
+		fmt.Println("  push rax")
+	} else {
+		vars.add(nd.name)
+		fmt.Println("  sub rsp, 8")
+		fmt.Println("  push rsp")
+	}
 }
 
 func main() {
@@ -375,10 +405,13 @@ func main() {
 
 	fmt.Println("  push rbp")
 	fmt.Println("  mov rbp, rsp")
-	fmt.Println("  sub rsp, 208")
 
+	vars := variables{
+		offset: 0,
+		vars: make(map[string]variable),
+	}
 	for _, nd := range nds {
-		gen(&nd)
+		gen(&nd, &vars)
 		fmt.Println("  pop rax")
 	}
 
