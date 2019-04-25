@@ -264,7 +264,7 @@ func unary(tks *tokens) (nd *node) {
 		}
 		ndTerm := term(tks)
 		return &node{
-			ty: '-',
+			ty:  '-',
 			lhs: ndZero,
 			rhs: ndTerm,
 		}
@@ -332,7 +332,7 @@ type variables struct {
 func (vars *variables) add(key string) {
 	vars.offset += 8
 	vars.vars[key] = variable{
-		name: key,
+		name:   key,
 		offset: vars.offset,
 	}
 }
@@ -428,7 +428,7 @@ func main() {
 
 	vars := variables{
 		offset: 0,
-		vars: make(map[string]variable),
+		vars:   make(map[string]variable),
 	}
 	for _, nd := range nds {
 		gen(&nd, &vars)
