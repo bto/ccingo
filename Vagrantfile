@@ -17,7 +17,7 @@ Vagrant.configure("2") do |config|
     apt-get update
     apt-get upgrade -y
 
-    apt-get install -y gcc golang-go
+    apt-get install -y gcc gdb golang-go
   SHELL
 
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
