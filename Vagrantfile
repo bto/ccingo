@@ -4,7 +4,7 @@
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/cosmic64"
   config.vm.hostname = "ccingo"
-  config.vm.synced_folder ".", "/home/vagrant/ccingo"
+  config.vm.synced_folder ".", "/home/vagrant/projects/go/src/github.com/bto/ccingo"
 
   config.vm.provider "virtualbox" do |vb|
     vb.name = "ccingo"
