@@ -258,7 +258,7 @@ func term(tks *tokens) (nd *node) {
 
 	switch {
 	case tks.consume('('):
-		nd = add(tks)
+		nd = assign(tks)
 		if !tks.consume(')') {
 			log.Fatal("閉じカッコがありません: ", string(tks.current().input))
 		}
