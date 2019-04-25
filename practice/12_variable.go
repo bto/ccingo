@@ -381,16 +381,15 @@ func genLval(nd *node, vars *variables) {
 		log.Fatal("代入の左辺値が変数ではありません")
 	}
 
-	if vars.exist(nd.name) {
-		v := vars.get(nd.name)
-		fmt.Println("  mov rax, rbp")
-		fmt.Println("  sub rax,", v.offset)
-		fmt.Println("  push rax")
-	} else {
+	if !vars.exist(nd.name) {
 		vars.add(nd.name)
-		fmt.Println("  sub rsp, 8")
-		fmt.Println("  push rsp")
 	}
+	v := vars.get(nd.name)
+	offset := v.offset
+
+	fmt.Println("  mov rax, rbp")
+	fmt.Println("  sub rax,", offset)
+	fmt.Println("  push rax")
 }
 
 func main() {
@@ -405,6 +404,7 @@ func main() {
 
 	fmt.Println("  push rbp")
 	fmt.Println("  mov rbp, rsp")
+	fmt.Println("  sub rsp, 208")
 
 	vars := variables{
 		offset: 0,
