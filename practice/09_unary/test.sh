@@ -1,5 +1,7 @@
 #!/bin/bash
-source $(dirname $0)/common.sh
+SRC_DIR=$(cd $(dirname $0); pwd)
+TOP_DIR=$(cd $SRC_DIR/../..; pwd)
+source $SRC_DIR/../common.sh
 
 try 3 '1 + 2;'
 try 2 '  1+5
@@ -17,3 +19,5 @@ try 1 'a = 1; return a; b = 2; (a + b) * b;'
 try 2 'a = 1; b = 2; return b; (a + b) * b;'
 try 8 'a = 1; b = 2; return (a + (c = 3)) * b;'
 try 1 'a = 1; b = 2; (a + b) * b; return a;'
+try 6 'foo = 1; bar = 2; return (foo + bar) * bar;'
+try 2 'foo = +1; bar = -2; return (foo + bar) * bar;'

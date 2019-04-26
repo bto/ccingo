@@ -9,7 +9,7 @@ fmt:
 	go fmt $(PRACTICE_DIR)/*.go
 
 test:
-	@for f in $(PRACTICE_DIR)/*.sh; do \
+	@find $(PRACTICE_DIR) -name test.sh | while read f; do \
 	  [ ! -x $$f ] && continue; \
 	  echo $$(basename $$f); \
 	  $$f; \
