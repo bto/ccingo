@@ -3,120 +3,45 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"io"
 	"log"
 	"os"
-	"strconv"
+
+	"github.com/bto/ccingo/practice/03_token/cc"
 )
 
-const (
-	TK_NUM = iota + 256
-	TK_EOF
-)
-
-type token struct {
-	ty, val int
-	input   []byte
-}
-
-func tokenize(rd *bufio.Reader) (tks []token) {
-	var c byte
-	var err error
-	var tk token
-
-	for c, err = rd.ReadByte(); err == nil; {
-		switch c {
-		case 0, byte(' '), byte('\n'):
-			c, err = rd.ReadByte()
-			continue
-		case byte('+'), byte('-'):
-			tk := token{
-				ty:    int(c),
-				input: []byte{c},
-			}
-			tks = append(tks, tk)
-
-			c, err = rd.ReadByte()
-			continue
-		}
-
-		if byte('0') <= c && c <= byte('9') {
-			tk, c, err = tokenizeNum(rd, c)
-			tks = append(tks, tk)
-			continue
-		}
-
-		log.Fatal("トークナイズできません: ", string([]byte{c}))
-	}
-	if err != io.EOF {
-		log.Fatal(err)
-	}
-
-	tk = token{
-		ty: TK_EOF,
-	}
-	tks = append(tks, tk)
-
-	return
-}
-
-func tokenizeNum(rd *bufio.Reader, v byte) (tk token, c byte, err error) {
-	var num []byte
-	for c = v; err == nil; c, err = rd.ReadByte() {
-		if c < byte('0') || byte('9') < c {
-			break
-		}
-
-		num = append(num, c)
-	}
-
-	val, err := strconv.Atoi(string(num))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	tk = token{
-		ty:    TK_NUM,
-		val:   val,
-		input: num,
-	}
-
-	return
-}
-
-func errorToken(tk token) {
-	log.Fatal("予期しないトークンです: ", string(tk.input))
+func errorToken(tk cc.Token) {
+	log.Fatal("予期しないトークンです: ", string(tk.Input))
 }
 
 func main() {
 	rd := bufio.NewReader(os.Stdin)
-	tks := tokenize(rd)
+	tks := cc.Tokenize(rd)
 
 	fmt.Println(".intel_syntax noprefix")
 	fmt.Println(".global main")
 	fmt.Println("main:")
 
-	if tks[0].ty != TK_NUM {
+	if tks[0].Ty != cc.TK_NUM {
 		errorToken(tks[0])
 	}
-	fmt.Println("  mov rax,", tks[0].val)
+	fmt.Println("  mov rax,", tks[0].Val)
 
-	for i := 1; tks[i].ty != TK_EOF; i++ {
-		if tks[i].ty == '+' {
+	for i := 1; tks[i].Ty != cc.TK_EOF; i++ {
+		if tks[i].Ty == '+' {
 			i++
-			if tks[i].ty != TK_NUM {
+			if tks[i].Ty != cc.TK_NUM {
 				errorToken(tks[i])
 			}
-			fmt.Println("  add rax,", tks[i].val)
+			fmt.Println("  add rax,", tks[i].Val)
 			continue
 		}
 
-		if tks[i].ty == '-' {
+		if tks[i].Ty == '-' {
 			i++
-			if tks[i].ty != TK_NUM {
+			if tks[i].Ty != cc.TK_NUM {
 				errorToken(tks[i])
 			}
-			fmt.Println("  sub rax,", tks[i].val)
+			fmt.Println("  sub rax,", tks[i].Val)
 			continue
 		}
 
