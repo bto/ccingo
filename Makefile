@@ -6,7 +6,7 @@ PRACTICE_DIR = $(TOP_DIR)/practice
 all: test
 
 fmt:
-	go fmt $(PRACTICE_DIR)/*.go
+	@find -name '*.go' | xargs -n 1 go fmt
 
 test:
 	@find $(PRACTICE_DIR) -name test.sh | while read f; do \
