@@ -12,15 +12,15 @@ const (
 	TK_EOF
 )
 
-type Token struct {
-	Ty, Val int
-	Input   []byte
+type token struct {
+	ty, val int
+	input   []byte
 }
 
-func Tokenize(rd *bufio.Reader) (tks []Token) {
+func Tokenize(rd *bufio.Reader) (tks []token) {
 	var c byte
 	var err error
-	var tk Token
+	var tk token
 
 	for c, err = rd.ReadByte(); err == nil; {
 		switch c {
@@ -28,9 +28,9 @@ func Tokenize(rd *bufio.Reader) (tks []Token) {
 			c, err = rd.ReadByte()
 			continue
 		case byte('+'), byte('-'):
-			tk := Token{
-				Ty:    int(c),
-				Input: []byte{c},
+			tk := token{
+				ty:    int(c),
+				input: []byte{c},
 			}
 			tks = append(tks, tk)
 
@@ -50,15 +50,15 @@ func Tokenize(rd *bufio.Reader) (tks []Token) {
 		log.Fatal(err)
 	}
 
-	tk = Token{
-		Ty: TK_EOF,
+	tk = token{
+		ty: TK_EOF,
 	}
 	tks = append(tks, tk)
 
 	return
 }
 
-func tokenizeNum(rd *bufio.Reader, v byte) (tk Token, c byte, err error) {
+func tokenizeNum(rd *bufio.Reader, v byte) (tk token, c byte, err error) {
 	var num []byte
 	for c = v; err == nil; c, err = rd.ReadByte() {
 		if c < byte('0') || byte('9') < c {
@@ -73,10 +73,10 @@ func tokenizeNum(rd *bufio.Reader, v byte) (tk Token, c byte, err error) {
 		log.Fatal(err)
 	}
 
-	tk = Token{
-		Ty:    TK_NUM,
-		Val:   val,
-		Input: num,
+	tk = token{
+		ty:    TK_NUM,
+		val:   val,
+		input: num,
 	}
 
 	return
