@@ -62,35 +62,29 @@ func control(tks *tokens) *node {
 		if !tks.consume('(') {
 			log.Fatal("ifの開きカッコがありません: ", string(tks.current().input))
 		}
-		ndCond := assign(tks)
+		ndAssign := assign(tks)
 		if !tks.consume(')') {
 			log.Fatal("ifの閉じカッコがありません: ", string(tks.current().input))
 		}
-		ndAssign := assign(tks)
-		if !tks.consume(';') {
-			log.Fatal("';'ではないトークンです: ", string(tks.current().input))
-		}
+		ndStmt := stmt(tks)
 		return &node{
 			ty:  ND_IF,
-			lhs: ndCond,
-			rhs: ndAssign,
+			lhs: ndAssign,
+			rhs: ndStmt,
 		}
 	case tks.consume(TK_WHILE):
 		if !tks.consume('(') {
 			log.Fatal("whileの開きカッコがありません: ", string(tks.current().input))
 		}
-		ndCond := assign(tks)
+		ndAssign := assign(tks)
 		if !tks.consume(')') {
 			log.Fatal("whileの閉じカッコがありません: ", string(tks.current().input))
 		}
-		ndAssign := assign(tks)
-		if !tks.consume(';') {
-			log.Fatal("';'ではないトークンです: ", string(tks.current().input))
-		}
+		ndStmt := stmt(tks)
 		return &node{
 			ty:  ND_WHILE,
-			lhs: ndCond,
-			rhs: ndAssign,
+			lhs: ndAssign,
+			rhs: ndStmt,
 		}
 	}
 

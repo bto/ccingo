@@ -3,7 +3,7 @@ program: stmt program
 stmt: control
 stmt: assign ";"
 stmt: return assign ";"
-control: "if" "(" assign ")" assign ";"
+control: "if" "(" assign ")" stmt
 assign: equality
 assign: equality "=" assign
 equality: relational
@@ -32,7 +32,7 @@ program: stmt program
 stmt: control
 stmt: assign ";"
 stmt: return assign ";"
-control: "if" "(" assign ")" assign ";"
+control: "if" "(" assign ")" stmt
 assign: equality
 assign: equality "=" assign
 equality: relational equalityx

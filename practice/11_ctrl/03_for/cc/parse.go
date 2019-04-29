@@ -62,64 +62,55 @@ func control(tks *tokens) *node {
 		if !tks.consume('(') {
 			log.Fatal("ifの開きカッコがありません: ", string(tks.current().input))
 		}
-		ndCond := assign(tks)
+		ndAssign := assign(tks)
 		if !tks.consume(')') {
 			log.Fatal("ifの閉じカッコがありません: ", string(tks.current().input))
 		}
-		ndAssign := assign(tks)
-		if !tks.consume(';') {
-			log.Fatal("';'ではないトークンです: ", string(tks.current().input))
-		}
+		ndStmt := stmt(tks)
 		return &node{
 			ty:  ND_IF,
-			lhs: ndCond,
-			rhs: ndAssign,
+			lhs: ndAssign,
+			rhs: ndStmt,
 		}
 	case tks.consume(TK_WHILE):
 		if !tks.consume('(') {
 			log.Fatal("whileの開きカッコがありません: ", string(tks.current().input))
 		}
-		ndCond := assign(tks)
+		ndAssign := assign(tks)
 		if !tks.consume(')') {
 			log.Fatal("whileの閉じカッコがありません: ", string(tks.current().input))
 		}
-		ndAssign := assign(tks)
-		if !tks.consume(';') {
-			log.Fatal("';'ではないトークンです: ", string(tks.current().input))
-		}
+		ndStmt := stmt(tks)
 		return &node{
 			ty:  ND_WHILE,
-			lhs: ndCond,
-			rhs: ndAssign,
+			lhs: ndAssign,
+			rhs: ndStmt,
 		}
 	case tks.consume(TK_FOR):
 		if !tks.consume('(') {
 			log.Fatal("forの開きカッコがありません: ", string(tks.current().input))
 		}
-		nd1 := assign(tks)
+		ndAssign1 := assign(tks)
 		if !tks.consume(';') {
 			log.Fatal("';'ではないトークンです:", string(tks.current().input))
 		}
-		nd2 := assign(tks)
+		ndAssign2 := assign(tks)
 		if !tks.consume(';') {
 			log.Fatal("';'ではないトークンです:", string(tks.current().input))
 		}
-		nd3 := assign(tks)
+		ndAssign3 := assign(tks)
 		if !tks.consume(')') {
 			log.Fatal("forの閉じカッコがありません: ", string(tks.current().input))
 		}
-		nd4 := assign(tks)
-		if !tks.consume(';') {
-			log.Fatal("';'ではないトークンです:", string(tks.current().input))
-		}
+		ndStmt := stmt(tks)
 		return &node{
-			lhs: nd1,
+			lhs: ndAssign1,
 			rhs: &node{
 				ty:  ND_WHILE,
-				lhs: nd2,
+				lhs: ndAssign2,
 				rhs: &node{
-					lhs: nd4,
-					rhs: nd3,
+					lhs: ndStmt,
+					rhs: ndAssign3,
 				},
 			},
 		}
