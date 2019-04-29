@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"os"
 
-	"github.com/bto/ccingo/practice/04_syntax/03_term/cc"
+	"github.com/bto/ccingo/practice/04_arith/03_term/cc"
 )
 
 func main() {
