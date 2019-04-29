@@ -33,6 +33,15 @@ func program(tks *tokens) (nds []node) {
 
 func stmt(tks *tokens) (nd *node) {
 	switch {
+	case tks.consume(TK_RETURN):
+		ndAssign := assign(tks)
+		nd = &node{
+			ty:  ND_RETURN,
+			lhs: ndAssign,
+		}
+		if !tks.consume(';') {
+			log.Fatal("';'ではないトークンです:", string(tks.current().input))
+		}
 	case tks.consume(TK_IF):
 		if !tks.consume('(') {
 			log.Fatal("ifの開きカッコがありません: ", string(tks.current().input))
@@ -46,15 +55,6 @@ func stmt(tks *tokens) (nd *node) {
 			ty:  ND_IF,
 			lhs: ndCond,
 			rhs: ndAssign,
-		}
-		if !tks.consume(';') {
-			log.Fatal("';'ではないトークンです:", string(tks.current().input))
-		}
-	case tks.consume(TK_RETURN):
-		ndAssign := assign(tks)
-		nd = &node{
-			ty:  ND_RETURN,
-			lhs: ndAssign,
 		}
 		if !tks.consume(';') {
 			log.Fatal("';'ではないトークンです:", string(tks.current().input))
