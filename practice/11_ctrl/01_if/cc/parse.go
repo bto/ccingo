@@ -11,6 +11,7 @@ const (
 	ND_LE
 	ND_IDENT
 	ND_RETURN
+	ND_IF
 )
 
 type node struct {
@@ -31,19 +32,40 @@ func program(tks *tokens) (nds []node) {
 }
 
 func stmt(tks *tokens) (nd *node) {
-	if tks.consume(TK_RETURN) {
+	switch {
+	case tks.consume(TK_IF):
+		if !tks.consume('(') {
+			log.Fatal("ifの開きカッコがありません: ", string(tks.current().input))
+		}
+		ndCond := assign(tks)
+		if !tks.consume(')') {
+			log.Fatal("ifの閉じカッコがありません: ", string(tks.current().input))
+		}
+		ndAssign := assign(tks)
+		nd = &node{
+			ty:  ND_IF,
+			lhs: ndCond,
+			rhs: ndAssign,
+		}
+		if !tks.consume(';') {
+			log.Fatal("';'ではないトークンです:", string(tks.current().input))
+		}
+	case tks.consume(TK_RETURN):
 		ndAssign := assign(tks)
 		nd = &node{
 			ty:  ND_RETURN,
 			lhs: ndAssign,
 		}
-	} else {
+		if !tks.consume(';') {
+			log.Fatal("';'ではないトークンです:", string(tks.current().input))
+		}
+	default:
 		nd = assign(tks)
+		if !tks.consume(';') {
+			log.Fatal("';'ではないトークンです:", string(tks.current().input))
+		}
 	}
 
-	if !tks.consume(';') {
-		log.Fatal("';'ではないトークンです:", string(tks.current().input))
-	}
 	return
 }
 

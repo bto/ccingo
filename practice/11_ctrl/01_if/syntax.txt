@@ -1,7 +1,9 @@
 program:
 program: stmt program
+stmt: control
 stmt: assign ";"
 stmt: return assign ";"
+control: "if" "(" assign ")" assign ";"
 assign: equality
 assign: equality "=" assign
 equality: relational
@@ -27,7 +29,10 @@ term: "(" assign ")"
 
 program:
 program: stmt program
+stmt: control
 stmt: assign ";"
+stmt: return assign ";"
+control: "if" "(" assign ")" assign ";"
 assign: equality
 assign: equality "=" assign
 equality: relational equalityx

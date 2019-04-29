@@ -3,7 +3,17 @@ package cc
 import (
 	"fmt"
 	"log"
+	"strconv"
 )
+
+type label struct {
+	n int
+}
+
+func (lbl *label) get(key string) string {
+	lbl.n++
+	return "." + key + strconv.Itoa(lbl.n)
+}
 
 func PrintAsm(nds []node) {
 	fmt.Println(".intel_syntax noprefix")
@@ -18,8 +28,9 @@ func PrintAsm(nds []node) {
 		offset: 0,
 		vars:   make(map[string]variable),
 	}
+	lbl := label{}
 	for _, nd := range nds {
-		gen(&nd, &vars)
+		gen(&nd, &vars, &lbl)
 		fmt.Println("  pop rax")
 	}
 
@@ -28,7 +39,7 @@ func PrintAsm(nds []node) {
 	fmt.Println("  ret")
 }
 
-func gen(nd *node, vars *variables) {
+func gen(nd *node, vars *variables, lbl *label) {
 	switch nd.ty {
 	case ND_NUM:
 		fmt.Println("  push", nd.val)
@@ -40,15 +51,24 @@ func gen(nd *node, vars *variables) {
 		fmt.Println("  push rax")
 		return
 	case ND_RETURN:
-		gen(nd.lhs, vars)
+		gen(nd.lhs, vars, lbl)
 		fmt.Println("  pop rax")
 		fmt.Println("  mov rsp, rbp")
 		fmt.Println("  pop rbp")
 		fmt.Println("  ret")
 		return
+	case ND_IF:
+		l := lbl.get("if")
+		gen(nd.lhs, vars, lbl)
+		fmt.Println("  pop rax")
+		fmt.Println("  cmp rax, 0")
+		fmt.Println("  je", l)
+		gen(nd.rhs, vars, lbl)
+		fmt.Println(l + ":")
+		return
 	case int('='):
 		genLval(nd.lhs, vars)
-		gen(nd.rhs, vars)
+		gen(nd.rhs, vars, lbl)
 		fmt.Println("  pop rdi")
 		fmt.Println("  pop rax")
 		fmt.Println("  mov [rax], rdi")
@@ -56,8 +76,8 @@ func gen(nd *node, vars *variables) {
 		return
 	}
 
-	gen(nd.lhs, vars)
-	gen(nd.rhs, vars)
+	gen(nd.lhs, vars, lbl)
+	gen(nd.rhs, vars, lbl)
 
 	fmt.Println("  pop rdi")
 	fmt.Println("  pop rax")
