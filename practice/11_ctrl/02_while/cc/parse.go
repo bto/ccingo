@@ -33,16 +33,31 @@ func program(tks *tokens) (nds []node) {
 }
 
 func stmt(tks *tokens) *node {
-	switch {
-	case tks.consume(TK_RETURN):
+	tk := tks.current()
+	switch tk.ty {
+	case TK_RETURN:
+		tks.next()
 		ndAssign := assign(tks)
 		if !tks.consume(';') {
-			log.Fatal("';'ではないトークンです:", string(tks.current().input))
+			log.Fatal("';'ではないトークンです: ", string(tks.current().input))
 		}
 		return &node{
 			ty:  ND_RETURN,
 			lhs: ndAssign,
 		}
+	case TK_IF, TK_WHILE:
+		return control(tks)
+	default:
+		nd := assign(tks)
+		if !tks.consume(';') {
+			log.Fatal("';'ではないトークンです: ", string(tks.current().input))
+		}
+		return nd
+	}
+}
+
+func control(tks *tokens) *node {
+	switch {
 	case tks.consume(TK_IF):
 		if !tks.consume('(') {
 			log.Fatal("ifの開きカッコがありません: ", string(tks.current().input))
@@ -53,7 +68,7 @@ func stmt(tks *tokens) *node {
 		}
 		ndAssign := assign(tks)
 		if !tks.consume(';') {
-			log.Fatal("';'ではないトークンです:", string(tks.current().input))
+			log.Fatal("';'ではないトークンです: ", string(tks.current().input))
 		}
 		return &node{
 			ty:  ND_IF,
@@ -70,20 +85,17 @@ func stmt(tks *tokens) *node {
 		}
 		ndAssign := assign(tks)
 		if !tks.consume(';') {
-			log.Fatal("';'ではないトークンです:", string(tks.current().input))
+			log.Fatal("';'ではないトークンです: ", string(tks.current().input))
 		}
 		return &node{
 			ty:  ND_WHILE,
 			lhs: ndCond,
 			rhs: ndAssign,
 		}
-	default:
-		nd := assign(tks)
-		if !tks.consume(';') {
-			log.Fatal("';'ではないトークンです:", string(tks.current().input))
-		}
-		return nd
 	}
+
+	log.Fatal("不正なトークンです: ", string(tks.current().input))
+	return &node{}
 }
 
 func assign(tks *tokens) *node {
