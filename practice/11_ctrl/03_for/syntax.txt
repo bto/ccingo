@@ -1,0 +1,61 @@
+program:
+program: stmt program
+stmt: control
+stmt: assign ";"
+stmt: return assign ";"
+control: "if" "(" assign ")" assign ";"
+control: "while" "(" assign ")" assign ";"
+assign: equality
+assign: equality "=" assign
+equality: relational
+equality: equality "==" relational
+equality: equality "!=" relational
+relational: add
+relational: relational "<"  add
+relational: relational "<=" add
+relational: relational ">"  add
+relational: relational ">=" add
+add: mul
+add: add "+" mul
+add: add "-" mul
+mul: unary
+mul: mul "*" unary
+mul: mul "/" unary
+unary: "+" term
+unary: "+" term
+unary: term
+term: num
+term: "(" assign ")"
+
+
+program:
+program: stmt program
+stmt: control
+stmt: assign ";"
+stmt: return assign ";"
+control: "if" "(" assign ")" assign ";"
+control: "while" "(" assign ")" assign ";"
+assign: equality
+assign: equality "=" assign
+equality: relational equalityx
+equalityx:
+equalityx: "==" relational equalityx
+equalityx: "!=" relational equalityx
+relational: add relationalx
+relationalx: "<"  add relationalx
+relationalx: "<=" add relationalx
+relationalx: ">"  add relationalx
+relationalx: ">=" add relationalx
+add: mul addx
+addx:
+addx: "+" mul addx
+addx: "-" mul addx
+mul: unary mulx
+mulx:
+mulx: "*" unary mulx
+mulx: "/" unary mulx
+unary: "+" term
+unary: "+" term
+unary: term
+term: num
+term: "(" assign ")"
