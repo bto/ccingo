@@ -66,6 +66,18 @@ func gen(nd *node, vars *variables, lb *label) {
 		gen(nd.rhs, vars, lb)
 		fmt.Println(lbIf + ":")
 		return
+	case ND_WHILE:
+		lbBegin := lb.get("begin")
+		lbEnd := lb.get("end")
+		fmt.Println(lbBegin + ":")
+		gen(nd.lhs, vars, lb)
+		fmt.Println("  pop rax")
+		fmt.Println("  cmp rax, 0")
+		fmt.Println("  je", lbEnd)
+		gen(nd.rhs, vars, lb)
+		fmt.Println("  jmp", lbBegin)
+		fmt.Println(lbEnd + ":")
+		return
 	case int('='):
 		genLval(nd.lhs, vars)
 		gen(nd.rhs, vars, lb)
