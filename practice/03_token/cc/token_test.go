@@ -14,7 +14,7 @@ func createReader(v []byte) *bufio.Reader {
 func TestTokenize(t *testing.T) {
 	rd := createReader([]byte(" 1+  23\n -456 \n"))
 	tks := Tokenize(rd)
-	if len(tks) == 5 {
+	if len(tks) != 6 {
 		t.Fatal("invalid number of tokens:", len(tks))
 	}
 	if tk := tks[0]; tk.ty != TK_NUM || tk.val != 1 || string(tk.input) != "1" {
@@ -31,6 +31,9 @@ func TestTokenize(t *testing.T) {
 	}
 	if tk := tks[4]; tk.ty != TK_NUM || tk.val != 456 || string(tk.input) != "456" {
 		t.Fatal("invalid tokens[4]:", tk)
+	}
+	if tk := tks[5]; tk.ty != TK_EOF {
+		t.Fatal("invalid tokens[5]:", tk)
 	}
 }
 
