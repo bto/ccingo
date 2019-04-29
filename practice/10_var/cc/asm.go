@@ -14,8 +14,12 @@ func PrintAsm(nds []node) {
 	fmt.Println("  mov rbp, rsp")
 	fmt.Println("  sub rsp, 208")
 
+	vars := variables{
+		offset: 0,
+		vars:   make(map[string]variable),
+	}
 	for _, nd := range nds {
-		gen(&nd)
+		gen(&nd, &vars)
 		fmt.Println("  pop rax")
 	}
 
@@ -24,27 +28,27 @@ func PrintAsm(nds []node) {
 	fmt.Println("  ret")
 }
 
-func gen(nd *node) {
+func gen(nd *node, vars *variables) {
 	switch nd.ty {
 	case ND_NUM:
 		fmt.Println("  push", nd.val)
 		return
 	case ND_IDENT:
-		genLval(nd)
+		genLval(nd, vars)
 		fmt.Println("  pop rax")
 		fmt.Println("  mov rax, [rax]")
 		fmt.Println("  push rax")
 		return
 	case ND_RETURN:
-		gen(nd.lhs)
+		gen(nd.lhs, vars)
 		fmt.Println("  pop rax")
 		fmt.Println("  mov rsp, rbp")
 		fmt.Println("  pop rbp")
 		fmt.Println("  ret")
 		return
 	case int('='):
-		genLval(nd.lhs)
-		gen(nd.rhs)
+		genLval(nd.lhs, vars)
+		gen(nd.rhs, vars)
 		fmt.Println("  pop rdi")
 		fmt.Println("  pop rax")
 		fmt.Println("  mov [rax], rdi")
@@ -52,8 +56,8 @@ func gen(nd *node) {
 		return
 	}
 
-	gen(nd.lhs)
-	gen(nd.rhs)
+	gen(nd.lhs, vars)
+	gen(nd.rhs, vars)
 
 	fmt.Println("  pop rdi")
 	fmt.Println("  pop rax")
@@ -89,12 +93,17 @@ func gen(nd *node) {
 	fmt.Println("  push rax")
 }
 
-func genLval(nd *node) {
+func genLval(nd *node, vars *variables) {
 	if nd.ty != ND_IDENT {
 		log.Fatal("代入の左辺値が変数ではありません")
 	}
 
-	offset := (byte('z') - nd.name[0] + 1) * 8
+	if !vars.exist(nd.name) {
+		vars.add(nd.name)
+	}
+	v := vars.get(nd.name)
+	offset := v.offset
+
 	fmt.Println("  mov rax, rbp")
 	fmt.Println("  sub rax,", offset)
 	fmt.Println("  push rax")

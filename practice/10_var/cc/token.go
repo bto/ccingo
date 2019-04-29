@@ -153,12 +153,6 @@ func Tokenize(rd *bufio.Reader) (tks *tokens) {
 				input: name,
 			}
 
-			if len(name) == 1 {
-				tk.ty = TK_IDENT
-				tks.append(tk)
-				continue
-			}
-
 			switch string(name) {
 			case "return":
 				tk.ty = TK_RETURN
@@ -166,7 +160,9 @@ func Tokenize(rd *bufio.Reader) (tks *tokens) {
 				continue
 			}
 
-			log.Fatal("トークナイズできません: ", name)
+			tk.ty = TK_IDENT
+			tks.append(tk)
+			continue
 		}
 
 		log.Fatal("トークナイズできません: ", string([]byte{c}))
