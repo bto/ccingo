@@ -33,14 +33,14 @@ func program(tks *tokens) (nds []node) {
 	return
 }
 
-func stmt(tks *tokens) (nd *node) {
+func stmt(tks *tokens) *node {
 	switch {
 	case tks.consume(TK_RETURN):
 		ndAssign := assign(tks)
 		if !tks.consume(';') {
 			log.Fatal("';'ではないトークンです:", string(tks.current().input))
 		}
-		nd = &node{
+		return &node{
 			ty:  ND_RETURN,
 			lhs: ndAssign,
 		}
@@ -56,7 +56,7 @@ func stmt(tks *tokens) (nd *node) {
 		if !tks.consume(';') {
 			log.Fatal("';'ではないトークンです:", string(tks.current().input))
 		}
-		nd = &node{
+		return &node{
 			ty:  ND_IF,
 			lhs: ndCond,
 			rhs: ndAssign,
@@ -73,7 +73,7 @@ func stmt(tks *tokens) (nd *node) {
 		if !tks.consume(';') {
 			log.Fatal("';'ではないトークンです:", string(tks.current().input))
 		}
-		nd = &node{
+		return &node{
 			ty:  ND_WHILE,
 			lhs: ndCond,
 			rhs: ndAssign,
@@ -98,7 +98,7 @@ func stmt(tks *tokens) (nd *node) {
 		if !tks.consume(';') {
 			log.Fatal("';'ではないトークンです:", string(tks.current().input))
 		}
-		nd = &node{
+		return &node{
 			ty:  ND_NOOP,
 			lhs: nd1,
 			rhs: &node{
@@ -112,13 +112,12 @@ func stmt(tks *tokens) (nd *node) {
 			},
 		}
 	default:
-		nd = assign(tks)
+		nd := assign(tks)
 		if !tks.consume(';') {
 			log.Fatal("';'ではないトークンです:", string(tks.current().input))
 		}
+		return nd
 	}
-
-	return
 }
 
 func assign(tks *tokens) *node {
