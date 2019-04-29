@@ -9,9 +9,9 @@ fmt:
 	@find -name '*.go' | xargs -n 1 go fmt
 
 test:
-	@find $(PRACTICE_DIR) -name test.sh | while read f; do \
+	@find $(PRACTICE_DIR) -name test.sh | sort | while read f; do \
 	  [ ! -x $$f ] && continue; \
-	  echo $$(basename $$f); \
+	  echo $$f; \
 	  $$f; \
 	  echo; \
 	done
