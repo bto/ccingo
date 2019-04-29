@@ -195,9 +195,9 @@ func tokenizeAlNum(rd *bufio.Reader, v byte) (name []byte, c byte, err error) {
 	return
 }
 
-func tokenizeNum(rd *bufio.Reader, v byte) (tk token, c byte, err error) {
+func tokenizeNum(rd *bufio.Reader, v byte) (tk token, c byte, rdErr error) {
 	var num []byte
-	for c = v; err == nil; c, err = rd.ReadByte() {
+	for c = v; rdErr == nil; c, rdErr = rd.ReadByte() {
 		if c < byte('0') || byte('9') < c {
 			break
 		}
