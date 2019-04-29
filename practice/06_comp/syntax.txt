@@ -16,7 +16,7 @@ unary: "+" term
 unary: "+" term
 unary: term
 term: num
-term: "(" add ")"
+term: "(" equality ")"
 
 
 equality: relational equalityx
@@ -40,4 +40,4 @@ unary: "+" term
 unary: "+" term
 unary: term
 term: num
-term: "(" add ")"
+term: "(" equality ")"

@@ -171,7 +171,7 @@ func unary(tks *tokens) (nd *node) {
 func term(tks *tokens) *node {
 	switch {
 	case tks.consume('('):
-		nd := add(tks)
+		nd := equality(tks)
 		if !tks.consume(')') {
 			log.Fatal("閉じカッコがありません: ", string(tks.current().input))
 		}
