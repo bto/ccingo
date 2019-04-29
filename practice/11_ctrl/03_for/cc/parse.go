@@ -13,6 +13,7 @@ const (
 	ND_RETURN
 	ND_IF
 	ND_WHILE
+	ND_NOOP
 )
 
 type node struct {
@@ -36,12 +37,12 @@ func stmt(tks *tokens) (nd *node) {
 	switch {
 	case tks.consume(TK_RETURN):
 		ndAssign := assign(tks)
+		if !tks.consume(';') {
+			log.Fatal("';'ではないトークンです:", string(tks.current().input))
+		}
 		nd = &node{
 			ty:  ND_RETURN,
 			lhs: ndAssign,
-		}
-		if !tks.consume(';') {
-			log.Fatal("';'ではないトークンです:", string(tks.current().input))
 		}
 	case tks.consume(TK_IF):
 		if !tks.consume('(') {
@@ -52,13 +53,13 @@ func stmt(tks *tokens) (nd *node) {
 			log.Fatal("ifの閉じカッコがありません: ", string(tks.current().input))
 		}
 		ndAssign := assign(tks)
+		if !tks.consume(';') {
+			log.Fatal("';'ではないトークンです:", string(tks.current().input))
+		}
 		nd = &node{
 			ty:  ND_IF,
 			lhs: ndCond,
 			rhs: ndAssign,
-		}
-		if !tks.consume(';') {
-			log.Fatal("';'ではないトークンです:", string(tks.current().input))
 		}
 	case tks.consume(TK_WHILE):
 		if !tks.consume('(') {
@@ -69,13 +70,46 @@ func stmt(tks *tokens) (nd *node) {
 			log.Fatal("whileの閉じカッコがありません: ", string(tks.current().input))
 		}
 		ndAssign := assign(tks)
+		if !tks.consume(';') {
+			log.Fatal("';'ではないトークンです:", string(tks.current().input))
+		}
 		nd = &node{
 			ty:  ND_WHILE,
 			lhs: ndCond,
 			rhs: ndAssign,
 		}
+	case tks.consume(TK_FOR):
+		if !tks.consume('(') {
+			log.Fatal("forの開きカッコがありません: ", string(tks.current().input))
+		}
+		nd1 := assign(tks)
 		if !tks.consume(';') {
 			log.Fatal("';'ではないトークンです:", string(tks.current().input))
+		}
+		nd2 := assign(tks)
+		if !tks.consume(';') {
+			log.Fatal("';'ではないトークンです:", string(tks.current().input))
+		}
+		nd3 := assign(tks)
+		if !tks.consume(')') {
+			log.Fatal("forの閉じカッコがありません: ", string(tks.current().input))
+		}
+		nd4 := assign(tks)
+		if !tks.consume(';') {
+			log.Fatal("';'ではないトークンです:", string(tks.current().input))
+		}
+		nd = &node{
+			ty:  ND_NOOP,
+			lhs: nd1,
+			rhs: &node{
+				ty: ND_WHILE,
+				lhs: nd2,
+				rhs: &node{
+					ty: ND_NOOP,
+					lhs: nd4,
+					rhs: nd3,
+				},
+			},
 		}
 	default:
 		nd = assign(tks)
