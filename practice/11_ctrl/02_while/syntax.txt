@@ -34,6 +34,7 @@ stmt: control
 stmt: assign ";"
 stmt: return assign ";"
 control: "if" "(" assign ")" assign ";"
+control: "while" "(" assign ")" assign ";"
 assign: equality
 assign: equality "=" assign
 equality: relational equalityx
