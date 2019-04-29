@@ -32,7 +32,7 @@ func program(tks *tokens) (nds []node) {
 func stmt(tks *tokens) (nd *node) {
 	nd = assign(tks)
 	if !tks.consume(';') {
-		log.Fatal("';'ではないトークンです:", string(tks.current().input))
+		log.Fatal("';'ではないトークンです: ", string(tks.current().input))
 	}
 	return
 }
