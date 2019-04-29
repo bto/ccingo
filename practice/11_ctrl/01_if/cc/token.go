@@ -149,7 +149,7 @@ func Tokenize(rd *bufio.Reader) (tks *tokens) {
 		}
 
 		if byte('a') <= c && c <= byte('z') {
-			name, c, err = tokenizeAlphabet(rd, c)
+			name, c, err = tokenizeAlNum(rd, c)
 			tk := token{
 				input: name,
 			}
@@ -184,9 +184,9 @@ func Tokenize(rd *bufio.Reader) (tks *tokens) {
 	return
 }
 
-func tokenizeAlphabet(rd *bufio.Reader, v byte) (name []byte, c byte, err error) {
+func tokenizeAlNum(rd *bufio.Reader, v byte) (name []byte, c byte, err error) {
 	for c = v; err == nil; c, err = rd.ReadByte() {
-		if c < byte('a') || byte('z') < c {
+		if (c < byte('a') || byte('z') < c) && (c < byte('0') || byte('9') < c) {
 			break
 		}
 
