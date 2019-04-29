@@ -1,7 +1,7 @@
 #!/bin/bash
 SRC_DIR=$(cd $(dirname $0); pwd)
-TOP_DIR=$(cd $SRC_DIR/../../..; pwd)
-source $SRC_DIR/../../common.sh
+TOP_DIR=$(cd $SRC_DIR/../..; pwd)
+source $SRC_DIR/../common.sh
 
 try 3 '1 + 2;'
 try 2 '  1+5
@@ -40,3 +40,4 @@ try 1 'foo=1;if(0)foo=2;foo;'
 try 2 'foo=1;if(1)foo=2;foo;'
 try 10 'i=0;while(i<10)i=i+1;i;'
 try 10 'for(i=0;i<10;i=i+1)i;i;'
+try 4 'foo=1;bar=2;if(1){foo=3;bar=4;}bar;'

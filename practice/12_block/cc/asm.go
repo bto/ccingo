@@ -78,6 +78,12 @@ func gen(nd *node, vars *variables, lb *label) {
 		fmt.Println("  jmp", lbBegin)
 		fmt.Println(lbEnd + ":")
 		return
+	case ND_BLOCK:
+		for _, nd1 := range nd.nds {
+			gen(&nd1, vars, lb)
+			fmt.Println("  pop rax")
+		}
+		return
 	case int('='):
 		genLval(nd.lhs, vars)
 		gen(nd.rhs, vars, lb)

@@ -133,7 +133,7 @@ func Tokenize(rd *bufio.Reader) (tks *tokens) {
 				tks.append(tk)
 			}
 			continue
-		case byte('+'), byte('-'), byte('*'), byte('/'), byte('('), byte(')'), byte(';'):
+		case byte('+'), byte('-'), byte('*'), byte('/'), byte('('), byte(')'), byte(';'), byte('{'), byte('}'):
 			tk := token{
 				ty:    int(c),
 				input: []byte{c},
