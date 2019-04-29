@@ -9,8 +9,8 @@ fmt:
 	@find -name '*.go' | xargs -n 1 go fmt
 
 test:
+	@find ./practice -name cc | sort | xargs go test
 	@find $(PRACTICE_DIR) -name test.sh | sort | while read f; do \
-	  [ ! -x $$f ] && continue; \
 	  echo $$f; \
 	  $$f; \
 	  echo; \

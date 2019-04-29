@@ -24,7 +24,7 @@ func Tokenize(rd *bufio.Reader) (tks []token) {
 
 	for c, err = rd.ReadByte(); err == nil; {
 		switch c {
-		case 0, byte(' '), byte('\n'):
+		case byte(' '), byte('\n'):
 			c, err = rd.ReadByte()
 			continue
 		case byte('+'), byte('-'):
@@ -58,9 +58,9 @@ func Tokenize(rd *bufio.Reader) (tks []token) {
 	return
 }
 
-func tokenizeNum(rd *bufio.Reader, v byte) (tk token, c byte, err error) {
+func tokenizeNum(rd *bufio.Reader, v byte) (tk token, c byte, rdErr error) {
 	var num []byte
-	for c = v; err == nil; c, err = rd.ReadByte() {
+	for c = v; rdErr == nil; c, rdErr = rd.ReadByte() {
 		if c < byte('0') || byte('9') < c {
 			break
 		}
