@@ -28,6 +28,7 @@ term: "(" assign ")"
 program:
 program: stmt program
 stmt: assign ";"
+stmt: return assign ";"
 assign: equality
 assign: equality "=" assign
 equality: relational equalityx
