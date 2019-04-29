@@ -13,7 +13,6 @@ const (
 	ND_RETURN
 	ND_IF
 	ND_WHILE
-	ND_NOOP
 )
 
 type node struct {
@@ -114,13 +113,11 @@ func control(tks *tokens) *node {
 			log.Fatal("';'ではないトークンです:", string(tks.current().input))
 		}
 		return &node{
-			ty:  ND_NOOP,
 			lhs: nd1,
 			rhs: &node{
 				ty:  ND_WHILE,
 				lhs: nd2,
 				rhs: &node{
-					ty:  ND_NOOP,
 					lhs: nd4,
 					rhs: nd3,
 				},
