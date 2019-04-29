@@ -14,6 +14,7 @@ const (
 	TK_LE
 	TK_GE
 	TK_IDENT
+	TK_RETURN
 	TK_EOF
 )
 
@@ -53,6 +54,7 @@ func Tokenize(rd *bufio.Reader) (tks *tokens) {
 	var c byte
 	var err error
 	var tk token
+	var name []byte
 	tks = &tokens{}
 
 	for c, err = rd.ReadByte(); err == nil; {
@@ -146,14 +148,25 @@ func Tokenize(rd *bufio.Reader) (tks *tokens) {
 		}
 
 		if byte('a') <= c && c <= byte('z') {
+			name, c, err = tokenizeAlphabet(rd, c)
 			tk := token{
-				ty:    TK_IDENT,
-				input: []byte{c},
+				input: name,
 			}
-			tks.append(tk)
 
-			c, err = rd.ReadByte()
-			continue
+			if len(name) == 1 {
+				tk.ty = TK_IDENT
+				tks.append(tk)
+				continue
+			}
+
+			switch string(name) {
+			case "return":
+				tk.ty = TK_RETURN
+				tks.append(tk)
+				continue
+			}
+
+			log.Fatal("トークナイズできません: ", name)
 		}
 
 		log.Fatal("トークナイズできません: ", string([]byte{c}))
@@ -166,6 +179,18 @@ func Tokenize(rd *bufio.Reader) (tks *tokens) {
 		ty: TK_EOF,
 	}
 	tks.append(tk)
+
+	return
+}
+
+func tokenizeAlphabet(rd *bufio.Reader, v byte) (name []byte, c byte, err error) {
+	for c = v; err == nil; c, err = rd.ReadByte() {
+		if c < byte('a') || byte('z') < c {
+			break
+		}
+
+		name = append(name, c)
+	}
 
 	return
 }

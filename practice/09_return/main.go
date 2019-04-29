@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"os"
 
-	"github.com/bto/ccingo/practice/07_var/cc"
+	"github.com/bto/ccingo/practice/09_return/cc"
 )
 
 func main() {
