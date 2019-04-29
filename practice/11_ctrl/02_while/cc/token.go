@@ -61,7 +61,7 @@ func Tokenize(rd *bufio.Reader) (tks *tokens) {
 
 	for c, err = rd.ReadByte(); err == nil; {
 		switch c {
-		case 0, byte(' '), byte('\n'):
+		case byte(' '), byte('\n'):
 			c, err = rd.ReadByte()
 			continue
 		case byte('='):
