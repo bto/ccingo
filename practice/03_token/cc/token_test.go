@@ -7,10 +7,6 @@ import (
 	"testing"
 )
 
-func createReader(v []byte) *bufio.Reader {
-	return bufio.NewReader(bytes.NewReader(v))
-}
-
 func TestTokenize(t *testing.T) {
 	rd := createReader([]byte(" 1+  23\n -456 \n"))
 	tks := Tokenize(rd)
@@ -61,4 +57,8 @@ func TestTokenizeNum(t *testing.T) {
 	if err != nil {
 		t.Fatal("invalid error:", err)
 	}
+}
+
+func createReader(v []byte) *bufio.Reader {
+	return bufio.NewReader(bytes.NewReader(v))
 }
