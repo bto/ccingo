@@ -15,34 +15,34 @@ func TestTokenize(t *testing.T) {
 		t.Fatal("invalid number of tokens:", len(tks.tks))
 	}
 	if tk := tks.current(); !tk.checkNum(12) {
-		t.Fatal("invalid tokens[0]:", tk)
+		t.Fatal("invalid token:", tk)
 	}
 	if tk := tks.next(); !tk.checkChar('-') {
-		t.Fatal("invalid tokens[1]:", tk)
+		t.Fatal("invalid token:", tk)
 	}
 	if tk := tks.next(); !tk.checkNum(3) {
-		t.Fatal("invalid tokens[2]:", tk)
+		t.Fatal("invalid token:", tk)
 	}
 	if tk := tks.next(); !tk.checkChar('/') {
-		t.Fatal("invalid tokens[3]:", tk)
+		t.Fatal("invalid token:", tk)
 	}
 	if tk := tks.next(); !tk.checkNum(3) {
-		t.Fatal("invalid tokens[4]:", tk)
+		t.Fatal("invalid token:", tk)
 	}
 	if tk := tks.next(); !tk.checkChar('+') {
-		t.Fatal("invalid tokens[3]:", tk)
+		t.Fatal("invalid token:", tk)
 	}
 	if tk := tks.next(); !tk.checkNum(4) {
-		t.Fatal("invalid tokens[4]:", tk)
+		t.Fatal("invalid token:", tk)
 	}
 	if tk := tks.next(); !tk.checkChar('*') {
-		t.Fatal("invalid tokens[3]:", tk)
+		t.Fatal("invalid token:", tk)
 	}
 	if tk := tks.next(); !tk.checkNum(5) {
-		t.Fatal("invalid tokens[4]:", tk)
+		t.Fatal("invalid token:", tk)
 	}
 	if tk := tks.next(); tk.ty != TK_EOF {
-		t.Fatal("invalid tokens[5]:", tk)
+		t.Fatal("invalid token:", tk)
 	}
 }
 

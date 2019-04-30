@@ -15,22 +15,22 @@ func TestTokenize(t *testing.T) {
 		t.Fatal("invalid number of tokens:", len(tks))
 	}
 	if tk := tks[0]; !tk.checkNum(1) {
-		t.Fatal("invalid tokens[0]:", tk)
+		t.Fatal("invalid token:", tk)
 	}
 	if tk := tks[1]; !tk.checkChar('+') {
-		t.Fatal("invalid tokens[1]:", tk)
+		t.Fatal("invalid token:", tk)
 	}
 	if tk := tks[2]; !tk.checkNum(23) {
-		t.Fatal("invalid tokens[2]:", tk)
+		t.Fatal("invalid token:", tk)
 	}
 	if tk := tks[3]; !tk.checkChar('-') {
-		t.Fatal("invalid tokens[3]:", tk)
+		t.Fatal("invalid token:", tk)
 	}
 	if tk := tks[4]; !tk.checkNum(456) {
-		t.Fatal("invalid tokens[4]:", tk)
+		t.Fatal("invalid token:", tk)
 	}
 	if tk := tks[5]; tk.ty != TK_EOF {
-		t.Fatal("invalid tokens[5]:", tk)
+		t.Fatal("invalid token:", tk)
 	}
 }
 
