@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestTokenize(t *testing.T) {
+func TestTokenizeAddSub(t *testing.T) {
 	rd := newReader(" 1+  23\n -456 \n")
 	tks := Tokenize(rd)
 	if len(tks.tks) != 6 {

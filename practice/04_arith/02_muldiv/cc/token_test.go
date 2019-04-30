@@ -8,37 +8,51 @@ import (
 	"testing"
 )
 
-func TestTokenize(t *testing.T) {
-	rd := newReader(" 12-  3/3\n +4*5 \n")
+func TestTokenizeAddSub(t *testing.T) {
+	rd := newReader(" 1+  23\n -456 \n")
 	tks := Tokenize(rd)
-	if len(tks.tks) != 10 {
+	if len(tks.tks) != 6 {
 		t.Fatal("invalid number of tokens:", len(tks.tks))
 	}
-	if tk := tks.current(); !tk.checkNum(12) {
+	if tk := tks.current(); !tk.checkNum(1) {
+		t.Fatal("invalid token:", tk)
+	}
+	if tk := tks.next(); !tk.checkChar('+') {
+		t.Fatal("invalid token:", tk)
+	}
+	if tk := tks.next(); !tk.checkNum(23) {
 		t.Fatal("invalid token:", tk)
 	}
 	if tk := tks.next(); !tk.checkChar('-') {
 		t.Fatal("invalid token:", tk)
 	}
-	if tk := tks.next(); !tk.checkNum(3) {
+	if tk := tks.next(); !tk.checkNum(456) {
+		t.Fatal("invalid token:", tk)
+	}
+	if tk := tks.next(); tk.ty != TK_EOF {
+		t.Fatal("invalid token:", tk)
+	}
+}
+
+func TestTokenizeMulDiv(t *testing.T) {
+	rd := newReader("1*2/3")
+	tks := Tokenize(rd)
+	if len(tks.tks) != 6 {
+		t.Fatal("invalid number of tokens:", len(tks.tks))
+	}
+	if tk := tks.current(); !tk.checkNum(1) {
+		t.Fatal("invalid token:", tk)
+	}
+	if tk := tks.next(); !tk.checkChar('*') {
+		t.Fatal("invalid token:", tk)
+	}
+	if tk := tks.next(); !tk.checkNum(2) {
 		t.Fatal("invalid token:", tk)
 	}
 	if tk := tks.next(); !tk.checkChar('/') {
 		t.Fatal("invalid token:", tk)
 	}
 	if tk := tks.next(); !tk.checkNum(3) {
-		t.Fatal("invalid token:", tk)
-	}
-	if tk := tks.next(); !tk.checkChar('+') {
-		t.Fatal("invalid token:", tk)
-	}
-	if tk := tks.next(); !tk.checkNum(4) {
-		t.Fatal("invalid token:", tk)
-	}
-	if tk := tks.next(); !tk.checkChar('*') {
-		t.Fatal("invalid token:", tk)
-	}
-	if tk := tks.next(); !tk.checkNum(5) {
 		t.Fatal("invalid token:", tk)
 	}
 	if tk := tks.next(); tk.ty != TK_EOF {
