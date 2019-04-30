@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestParse(t *testing.T) {
+func TestParseNum(t *testing.T) {
 	tks := &tokens{}
 	tks.append(token{ty: TK_NUM, val: 1})
 	tks.append(token{ty: TK_EOF})
@@ -12,41 +12,25 @@ func TestParse(t *testing.T) {
 	if !nd.checkNum(1) {
 		t.Fatal("invalid node:", nd)
 	}
+}
 
-	tks = &tokens{}
-	tks.append(token{ty: TK_NUM, val: 1})
-	tks.append(token{ty: '+'})
-	tks.append(token{ty: TK_NUM, val: 2})
-	tks.append(token{ty: TK_EOF})
-	nd = Parse(tks)
-	if !nd.checkOp('+') {
-		t.Fatal("invalid node:", nd)
-	}
-	ndr := nd.rhs
-	if !ndr.checkNum(2) {
-		t.Fatal("invalid node:", ndr)
-	}
-	ndl := nd.lhs
-	if !ndl.checkNum(1) {
-		t.Fatal("invalid node:", ndl)
-	}
-
-	tks = &tokens{}
+func TestParseAddSub(t *testing.T) {
+	tks := &tokens{}
 	tks.append(token{ty: TK_NUM, val: 1})
 	tks.append(token{ty: '+'})
 	tks.append(token{ty: TK_NUM, val: 2})
 	tks.append(token{ty: '-'})
 	tks.append(token{ty: TK_NUM, val: 3})
 	tks.append(token{ty: TK_EOF})
-	nd = Parse(tks)
+	nd := Parse(tks)
 	if !nd.checkOp('-') {
 		t.Fatal("invalid node:", nd)
 	}
-	ndr = nd.rhs
+	ndr := nd.rhs
 	if !ndr.checkNum(3) {
 		t.Fatal("invalid node:", ndr)
 	}
-	ndl = nd.lhs
+	ndl := nd.lhs
 	if !ndl.checkOp('+') {
 		t.Fatal("invalid node:", ndl)
 	}

@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestParse(t *testing.T) {
+func TestParseNum(t *testing.T) {
 	tks := &tokens{}
 	tks.append(token{ty: TK_NUM, val: 1})
 	tks.append(token{ty: TK_EOF})
@@ -12,41 +12,25 @@ func TestParse(t *testing.T) {
 	if !nd.checkNum(1) {
 		t.Fatal("invalid node:", nd)
 	}
+}
 
-	tks = &tokens{}
-	tks.append(token{ty: TK_NUM, val: 1})
-	tks.append(token{ty: '+'})
-	tks.append(token{ty: TK_NUM, val: 2})
-	tks.append(token{ty: TK_EOF})
-	nd = Parse(tks)
-	if !nd.checkOp('+') {
-		t.Fatal("invalid node:", nd)
-	}
-	ndr := nd.rhs
-	if !ndr.checkNum(2) {
-		t.Fatal("invalid node:", ndr)
-	}
-	ndl := nd.lhs
-	if !ndl.checkNum(1) {
-		t.Fatal("invalid node:", ndl)
-	}
-
-	tks = &tokens{}
+func TestParseAddSub(t *testing.T) {
+	tks := &tokens{}
 	tks.append(token{ty: TK_NUM, val: 1})
 	tks.append(token{ty: '+'})
 	tks.append(token{ty: TK_NUM, val: 2})
 	tks.append(token{ty: '-'})
 	tks.append(token{ty: TK_NUM, val: 3})
 	tks.append(token{ty: TK_EOF})
-	nd = Parse(tks)
+	nd := Parse(tks)
 	if !nd.checkOp('-') {
 		t.Fatal("invalid node:", nd)
 	}
-	ndr = nd.rhs
+	ndr := nd.rhs
 	if !ndr.checkNum(3) {
 		t.Fatal("invalid node:", ndr)
 	}
-	ndl = nd.lhs
+	ndl := nd.lhs
 	if !ndl.checkOp('+') {
 		t.Fatal("invalid node:", ndl)
 	}
@@ -58,8 +42,10 @@ func TestParse(t *testing.T) {
 	if !ndll.checkNum(1) {
 		t.Fatal("invalid node:", ndr)
 	}
+}
 
-	tks = &tokens{}
+func TestParseMulDiv(t *testing.T) {
+	tks := &tokens{}
 	tks.append(token{ty: TK_NUM, val: 1})
 	tks.append(token{ty: '+'})
 	tks.append(token{ty: TK_NUM, val: 2})
@@ -70,11 +56,11 @@ func TestParse(t *testing.T) {
 	tks.append(token{ty: '/'})
 	tks.append(token{ty: TK_NUM, val: 5})
 	tks.append(token{ty: TK_EOF})
-	nd = Parse(tks)
+	nd := Parse(tks)
 	if !nd.checkOp('-') {
 		t.Fatal("invalid node:", nd)
 	}
-	ndr = nd.rhs
+	ndr := nd.rhs
 	if !ndr.checkOp('/') {
 		t.Fatal("invalid node:", ndr)
 	}
@@ -86,11 +72,11 @@ func TestParse(t *testing.T) {
 	if !ndrl.checkNum(4) {
 		t.Fatal("invalid node:", ndrl)
 	}
-	ndl = nd.lhs
+	ndl := nd.lhs
 	if !ndl.checkOp('+') {
 		t.Fatal("invalid node:", ndl)
 	}
-	ndlr = ndl.rhs
+	ndlr := ndl.rhs
 	if !ndlr.checkOp('*') {
 		t.Fatal("invalid node:", ndlr)
 	}
@@ -102,7 +88,7 @@ func TestParse(t *testing.T) {
 	if !ndlrl.checkNum(2) {
 		t.Fatal("invalid node:", ndlrl)
 	}
-	ndll = ndl.lhs
+	ndll := ndl.lhs
 	if !ndll.checkNum(1) {
 		t.Fatal("invalid node:", ndll)
 	}
