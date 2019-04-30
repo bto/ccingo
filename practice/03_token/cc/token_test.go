@@ -9,7 +9,7 @@ import (
 )
 
 func TestTokenize(t *testing.T) {
-	rd := createReader([]byte(" 1+  23\n -456 \n"))
+	rd := newReader(" 1+  23\n -456 \n")
 	tks := Tokenize(rd)
 	if len(tks) != 6 {
 		t.Fatal("invalid number of tokens:", len(tks))
@@ -35,7 +35,7 @@ func TestTokenize(t *testing.T) {
 }
 
 func TestTokenizeNum(t *testing.T) {
-	rd := createReader([]byte{})
+	rd := newReader("")
 	tk, c, err := tokenizeNum(rd, '1')
 	if !tk.checkNum(1) {
 		t.Fatal("invalid token:", tk)
@@ -47,7 +47,7 @@ func TestTokenizeNum(t *testing.T) {
 		t.Fatal("not EOF:", err)
 	}
 
-	rd = createReader([]byte("2a"))
+	rd = newReader("2a")
 	tk, c, err = tokenizeNum(rd, '1')
 	if !tk.checkNum(12) {
 		t.Fatal("invalid token:", tk)
@@ -68,6 +68,6 @@ func (tk *token)checkOp(op int) bool {
     return tk.ty == op && string(tk.input) == string(op)
 }
 
-func createReader(v []byte) *bufio.Reader {
-	return bufio.NewReader(bytes.NewReader(v))
+func newReader(str string) *bufio.Reader {
+	return bufio.NewReader(bytes.NewReader([]byte(str)))
 }
