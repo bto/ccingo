@@ -17,13 +17,13 @@ func TestTokenize(t *testing.T) {
 	if tk := tks[0]; !tk.checkNum(1) {
 		t.Fatal("invalid tokens[0]:", tk)
 	}
-	if tk := tks[1]; !tk.checkOp('+') {
+	if tk := tks[1]; !tk.checkChar('+') {
 		t.Fatal("invalid tokens[1]:", tk)
 	}
 	if tk := tks[2]; !tk.checkNum(23) {
 		t.Fatal("invalid tokens[2]:", tk)
 	}
-	if tk := tks[3]; !tk.checkOp('-') {
+	if tk := tks[3]; !tk.checkChar('-') {
 		t.Fatal("invalid tokens[3]:", tk)
 	}
 	if tk := tks[4]; !tk.checkNum(456) {
@@ -60,12 +60,12 @@ func TestTokenizeNum(t *testing.T) {
 	}
 }
 
-func (tk *token)checkNum(val int) bool {
-    return tk.ty == TK_NUM && tk.val == val && string(tk.input) == strconv.Itoa(val)
+func (tk *token) checkChar(op int) bool {
+	return tk.ty == op && string(tk.input) == string(op)
 }
 
-func (tk *token)checkOp(op int) bool {
-    return tk.ty == op && string(tk.input) == string(op)
+func (tk *token) checkNum(val int) bool {
+	return tk.ty == TK_NUM && tk.val == val && string(tk.input) == strconv.Itoa(val)
 }
 
 func newReader(str string) *bufio.Reader {

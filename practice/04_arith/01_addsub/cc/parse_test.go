@@ -60,10 +60,10 @@ func TestParse(t *testing.T) {
 	}
 }
 
-func (nd *node)checkNum(val int) bool {
+func (nd *node) checkNum(val int) bool {
 	return nd.ty == ND_NUM && nd.val == val && nd.lhs == nil && nd.rhs == nil
 }
 
-func (nd *node)checkOp(ty int) bool {
+func (nd *node) checkOp(ty int) bool {
 	return nd.ty == ty && nd.lhs != nil && nd.rhs != nil
 }
