@@ -14,7 +14,11 @@ type node struct {
 }
 
 func Parse(tks *tokens) *node {
-	return add(tks)
+	nd := add(tks)
+	if !tks.consume(TK_EOF) {
+		log.Fatal("不正なトークンです: ", string(tks.current().input))
+	}
+	return nd
 }
 
 func add(tks *tokens) *node {

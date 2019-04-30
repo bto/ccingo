@@ -23,8 +23,12 @@ type node struct {
 	nds      []node
 }
 
-func Parse(tks *tokens) (nds []node) {
-	return program(tks)
+func Parse(tks *tokens) []node {
+	nds := program(tks)
+	if !tks.consume(TK_EOF) {
+		log.Fatal("不正なトークンです: ", string(tks.current().input))
+	}
+	return nds
 }
 
 func program(tks *tokens) (nds []node) {
