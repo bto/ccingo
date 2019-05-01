@@ -27,8 +27,9 @@ type tokens struct {
 	i   int
 }
 
-func (tks *tokens) append(tk token) {
+func (tks *tokens) append(tk token) *tokens {
 	tks.tks = append(tks.tks, tk)
+	return tks
 }
 
 func (tks *tokens) consume(ty int) bool {
