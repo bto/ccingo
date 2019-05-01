@@ -14,12 +14,9 @@ func PrintAsm(nds []node) {
 	fmt.Println("  mov rbp, rsp")
 	fmt.Println("  sub rsp, 208")
 
-	vars := variables{
-		offset: 0,
-		vars:   make(map[string]variable),
-	}
+	vars := newVariables()
 	for _, nd := range nds {
-		gen(&nd, &vars)
+		gen(&nd, vars)
 		fmt.Println("  pop rax")
 	}
 
