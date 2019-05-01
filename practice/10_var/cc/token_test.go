@@ -155,6 +155,23 @@ func TestTokenizeReturn(t *testing.T) {
 	}
 }
 
+func TestTokenizeIdent(t *testing.T) {
+	rd := newReader("foo;bar")
+	tks := Tokenize(rd)
+	if len(tks.tks) != 4 {
+		t.Fatal("invalid number of tokens:", len(tks.tks))
+	}
+	if tk := tks.current(); !tk.checkWord(TK_IDENT, "foo") {
+		t.Fatal("invalid token:", tk)
+	}
+	if tk := tks.next(); !tk.checkChar(';') {
+		t.Fatal("invalid token:", tk)
+	}
+	if tk := tks.next(); !tk.checkWord(TK_IDENT, "bar") {
+		t.Fatal("invalid token:", tk)
+	}
+}
+
 func TestTokenizeAlNum(t *testing.T) {
 	rd := newReader("")
 	name, c, err := tokenizeAlNum(rd, 'a')
