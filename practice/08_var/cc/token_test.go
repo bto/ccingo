@@ -115,6 +115,29 @@ func TestTokenizeComp(t *testing.T) {
 	}
 }
 
+func TestTokenizeVar(t *testing.T) {
+	rd := newReader("a===b;")
+	tks := Tokenize(rd)
+	if len(tks.tks) != 6 {
+		t.Fatal("invalid number of tokens:", len(tks.tks))
+	}
+	if tk := tks.current(); !tk.checkWord(TK_IDENT, "a") {
+		t.Fatal("invalid token:", tk)
+	}
+	if tk := tks.next(); !tk.checkWord(TK_EQ, "==") {
+		t.Fatal("invalid token:", tk)
+	}
+	if tk := tks.next(); !tk.checkChar('=') {
+		t.Fatal("invalid token:", tk)
+	}
+	if tk := tks.next(); !tk.checkWord(TK_IDENT, "b") {
+		t.Fatal("invalid token:", tk)
+	}
+	if tk := tks.next(); !tk.checkChar(';') {
+		t.Fatal("invalid token:", tk)
+	}
+}
+
 func TestTokenizeNum(t *testing.T) {
 	rd := newReader("")
 	tk, c, err := tokenizeNum(rd, '1')
