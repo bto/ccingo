@@ -297,6 +297,32 @@ func TestParseVar(t *testing.T) {
 	}
 }
 
+func TestParseReturn(t *testing.T) {
+	// return a=1;
+	tks := &tokens{}
+	tks.append(token{ty: TK_RETURN})
+	tks.append(token{ty: TK_IDENT, input: []byte("a")})
+	tks.append(token{ty: '='})
+	tks.append(token{ty: TK_NUM, val: 1})
+	tks.append(token{ty: ';'}).append(token{ty: TK_EOF})
+	nd := Parse(tks)[0]
+	if !nd.checkUnary(ND_RETURN) {
+		t.Fatal("invalid node:", nd)
+	}
+	ndl := nd.lhs
+	if !ndl.checkOp('=') {
+		t.Fatal("invalid node:", ndl)
+	}
+	ndlr := ndl.rhs
+	if !ndlr.checkNum(1) {
+		t.Fatal("invalid node:", ndlr)
+	}
+	ndll := ndl.lhs
+	if !ndll.checkIdent("a") {
+		t.Fatal("invalid node:", ndll)
+	}
+}
+
 func (nd *node) checkIdent(name string) bool {
 	return nd.ty == ND_IDENT && nd.name == name && nd.lhs == nil && nd.rhs == nil
 }
@@ -307,4 +333,8 @@ func (nd *node) checkNum(val int) bool {
 
 func (nd *node) checkOp(ty int) bool {
 	return nd.ty == ty && nd.lhs != nil && nd.rhs != nil
+}
+
+func (nd *node) checkUnary(ty int) bool {
+	return nd.ty == ty && nd.lhs != nil && nd.rhs == nil
 }
