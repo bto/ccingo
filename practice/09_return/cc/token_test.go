@@ -138,6 +138,49 @@ func TestTokenizeVar(t *testing.T) {
 	}
 }
 
+func TestTokenizeReturn(t *testing.T) {
+	rd := newReader("return a;")
+	tks := Tokenize(rd)
+	if len(tks.tks) != 4 {
+		t.Fatal("invalid number of tokens:", len(tks.tks))
+	}
+	if tk := tks.current(); !tk.checkWord(TK_RETURN, "return") {
+		t.Fatal("invalid token:", tk)
+	}
+	if tk := tks.next(); !tk.checkWord(TK_IDENT, "a") {
+		t.Fatal("invalid token:", tk)
+	}
+	if tk := tks.next(); !tk.checkChar(';') {
+		t.Fatal("invalid token:", tk)
+	}
+}
+
+func TestTokenizeAlNum(t *testing.T) {
+	rd := newReader("")
+	name, c, err := tokenizeAlNum(rd, 'a')
+	if string(name) != "a" {
+		t.Fatal("invalid name:", string(name))
+	}
+	if c != 0 {
+		t.Fatal("invalid next charactor:", c)
+	}
+	if err != io.EOF {
+		t.Fatal("not EOF:", err)
+	}
+
+	rd = newReader("1a9=")
+	name, c, err = tokenizeAlNum(rd, 'z')
+	if string(name) != "z1a9" {
+		t.Fatal("invalid name:", string(name))
+	}
+	if c != byte('=') {
+		t.Fatal("invalid next charactor:", c)
+	}
+	if err != nil {
+		t.Fatal("invalid error:", err)
+	}
+}
+
 func TestTokenizeNum(t *testing.T) {
 	rd := newReader("")
 	tk, c, err := tokenizeNum(rd, '1')
