@@ -283,16 +283,16 @@ func TestParseVar(t *testing.T) {
 		t.Fatal("invalid node:", ndrrl)
 	}
 	ndrl := ndr.lhs
-	if !ndrl.checkIdent("b") {
+	if !ndrl.checkIdent(ND_VAR, "b") {
 		t.Fatal("invalid node:", ndrl)
 	}
 	ndl := nd.lhs
-	if !ndl.checkIdent("a") {
+	if !ndl.checkIdent(ND_VAR, "a") {
 		t.Fatal("invalid node:", ndl)
 	}
 
 	nd = nds[1]
-	if !nd.checkIdent("a") {
+	if !nd.checkIdent(ND_VAR, "a") {
 		t.Fatal("invalid node:", nd)
 	}
 }
@@ -318,7 +318,7 @@ func TestParseReturn(t *testing.T) {
 		t.Fatal("invalid node:", ndlr)
 	}
 	ndll := ndl.lhs
-	if !ndll.checkIdent("a") {
+	if !ndll.checkIdent(ND_VAR, "a") {
 		t.Fatal("invalid node:", ndll)
 	}
 }
@@ -356,7 +356,7 @@ func TestParseIf(t *testing.T) {
 		t.Fatal("invalid node:", ndlr)
 	}
 	ndll := ndl.lhs
-	if !ndll.checkIdent("a") {
+	if !ndll.checkIdent(ND_VAR, "a") {
 		t.Fatal("invalid node:", ndll)
 	}
 }
@@ -394,7 +394,7 @@ func TestParseWhile(t *testing.T) {
 		t.Fatal("invalid node:", ndlr)
 	}
 	ndll := ndl.lhs
-	if !ndll.checkIdent("a") {
+	if !ndll.checkIdent(ND_VAR, "a") {
 		t.Fatal("invalid node:", ndll)
 	}
 }
@@ -440,7 +440,7 @@ func TestParseFor(t *testing.T) {
 		t.Fatal("invalid node:", ndrrrr)
 	}
 	ndrrrl := ndrrr.lhs
-	if !ndrrrl.checkIdent("c") {
+	if !ndrrrl.checkIdent(ND_VAR, "c") {
 		t.Fatal("invalid node:", ndrrrl)
 	}
 	ndrrl := ndrr.lhs
@@ -460,7 +460,7 @@ func TestParseFor(t *testing.T) {
 		t.Fatal("invalid node:", ndrlr)
 	}
 	ndrll := ndrl.lhs
-	if !ndrll.checkIdent("b") {
+	if !ndrll.checkIdent(ND_VAR, "b") {
 		t.Fatal("invalid node:", ndrll)
 	}
 	ndl := nd.lhs
@@ -472,7 +472,7 @@ func TestParseFor(t *testing.T) {
 		t.Fatal("invalid node:", ndlr)
 	}
 	ndll := ndl.lhs
-	if !ndll.checkIdent("a") {
+	if !ndll.checkIdent(ND_VAR, "a") {
 		t.Fatal("invalid node:", ndll)
 	}
 }
@@ -518,12 +518,35 @@ func TestParseBlock(t *testing.T) {
 	}
 }
 
+func TestParseFunc(t *testing.T) {
+	// -foo();
+	tks := &tokens{}
+	tks.append(token{ty: '-'})
+	tks.append(token{ty: TK_IDENT, input: []byte("foo")})
+	tks.append(token{ty: '('})
+	tks.append(token{ty: ')'})
+	tks.append(token{ty: ';'}).append(token{ty: TK_EOF})
+	nds := Parse(tks)
+	nd := nds[0]
+	if !nd.checkOp('-') {
+		t.Fatal("invalid node:", nd)
+	}
+	ndr := nd.rhs
+	if !ndr.checkIdent(ND_FUNC, "foo") {
+		t.Fatal("invalid node:", ndr)
+	}
+	ndl := nd.lhs
+	if !ndl.checkNum(0) {
+		t.Fatal("invalid node:", ndl)
+	}
+}
+
 func (nd *node) checkBlock(n int) bool {
 	return nd.ty == ND_BLOCK && len(nd.nds) == n && nd.lhs == nil && nd.rhs == nil
 }
 
-func (nd *node) checkIdent(name string) bool {
-	return nd.ty == ND_VAR && nd.name == name && nd.lhs == nil && nd.rhs == nil
+func (nd *node) checkIdent(ty int, name string) bool {
+	return nd.ty == ty && nd.name == name && nd.lhs == nil && nd.rhs == nil
 }
 
 func (nd *node) checkNum(val int) bool {
