@@ -4,7 +4,7 @@ PRACTICE_DIR = $(TOP_DIR)/practice
 C_DIR = $(PRACTICE_DIR)/c
 
 .PHONY: all
-all: build test
+all: format build test
 
 .PHONY: build
 build: $(patsubst %.c, %.o, $(wildcard $(C_DIR)/*.c))
@@ -13,8 +13,8 @@ build: $(patsubst %.c, %.o, $(wildcard $(C_DIR)/*.c))
 clean:
 	rm -f $(C_DIR)/*.o
 
-.PHONY: fmt
-fmt:
+.PHONY: format
+format:
 	@find -name '*.go' | xargs -n 1 go fmt
 
 .PHONY: test
