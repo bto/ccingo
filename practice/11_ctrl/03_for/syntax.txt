@@ -26,6 +26,7 @@ unary: "+" term
 unary: "+" term
 unary: term
 term: num
+term: ident
 term: "(" assign ")"
 
 
@@ -60,4 +61,5 @@ unary: "+" term
 unary: "+" term
 unary: term
 term: num
+term: ident
 term: "(" assign ")"
