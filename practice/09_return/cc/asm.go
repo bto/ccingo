@@ -24,7 +24,7 @@ func PrintAsm(nds []node) {
 	fmt.Println("  ret")
 }
 
-func (nd *node)gen() {
+func (nd *node) gen() {
 	switch nd.ty {
 	case ND_NUM:
 		fmt.Println("  push", nd.val)
@@ -89,7 +89,7 @@ func (nd *node)gen() {
 	fmt.Println("  push rax")
 }
 
-func (nd *node)genLval() {
+func (nd *node) genLval() {
 	if nd.ty != ND_VAR {
 		log.Fatal("代入の左辺値が変数ではありません")
 	}

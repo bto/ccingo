@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-func (nd *node)PrintAsm() {
+func (nd *node) PrintAsm() {
 	fmt.Println(".intel_syntax noprefix")
 	fmt.Println(".global main")
 	fmt.Println("main:")
@@ -15,7 +15,7 @@ func (nd *node)PrintAsm() {
 	fmt.Println("  ret")
 }
 
-func (nd *node)gen() {
+func (nd *node) gen() {
 	if nd.ty == ND_NUM {
 		fmt.Println("  push", nd.val)
 		return
