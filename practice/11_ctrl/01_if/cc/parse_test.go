@@ -283,16 +283,16 @@ func TestParseVar(t *testing.T) {
 		t.Fatal("invalid node:", ndrrl)
 	}
 	ndrl := ndr.lhs
-	if !ndrl.checkIdent("b") {
+	if !ndrl.checkVar("b") {
 		t.Fatal("invalid node:", ndrl)
 	}
 	ndl := nd.lhs
-	if !ndl.checkIdent("a") {
+	if !ndl.checkVar("a") {
 		t.Fatal("invalid node:", ndl)
 	}
 
 	nd = nds[1]
-	if !nd.checkIdent("a") {
+	if !nd.checkVar("a") {
 		t.Fatal("invalid node:", nd)
 	}
 }
@@ -318,7 +318,7 @@ func TestParseReturn(t *testing.T) {
 		t.Fatal("invalid node:", ndlr)
 	}
 	ndll := ndl.lhs
-	if !ndll.checkIdent("a") {
+	if !ndll.checkVar("a") {
 		t.Fatal("invalid node:", ndll)
 	}
 }
@@ -356,13 +356,9 @@ func TestParseIf(t *testing.T) {
 		t.Fatal("invalid node:", ndlr)
 	}
 	ndll := ndl.lhs
-	if !ndll.checkIdent("a") {
+	if !ndll.checkVar("a") {
 		t.Fatal("invalid node:", ndll)
 	}
-}
-
-func (nd *node) checkIdent(name string) bool {
-	return nd.ty == ND_VAR && nd.name == name && nd.lhs == nil && nd.rhs == nil
 }
 
 func (nd *node) checkNum(val int) bool {
@@ -375,4 +371,8 @@ func (nd *node) checkOp(ty int) bool {
 
 func (nd *node) checkUnary(ty int) bool {
 	return nd.ty == ty && nd.lhs != nil && nd.rhs == nil
+}
+
+func (nd *node) checkVar(name string) bool {
+	return nd.ty == ND_VAR && nd.name == name
 }
