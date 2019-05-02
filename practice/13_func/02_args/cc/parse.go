@@ -21,7 +21,7 @@ type node struct {
 	ty, val  int
 	name     string
 	lhs, rhs *node
-	nds      []node
+	nds      nodes
 }
 
 type nodes []node
@@ -75,7 +75,7 @@ func (tks *tokens) stmt() *node {
 	}
 }
 
-func (tks *tokens) blockItems() (nds []node) {
+func (tks *tokens) blockItems() (nds nodes) {
 	for tks.current().ty != '}' {
 		nds = append(nds, *tks.stmt())
 	}
