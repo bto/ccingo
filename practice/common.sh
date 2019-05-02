@@ -1,4 +1,5 @@
 BUILD_DIR=$TOP_DIR/build
+C_DIR=$TOP_DIR/practice/c
 TARGET_DIR=$BUILD_DIR/${SRC_DIR#$TOP_DIR/}
 
 GO_FILE=$SRC_DIR/main.go
@@ -12,7 +13,7 @@ function try() {
     input=$2
 
     echo -n "$input" | go run $GO_FILE > $AS_FILE
-    gcc $AS_FILE -o $EXEC_FILE
+    gcc $AS_FILE $C_DIR/*.o -o $EXEC_FILE
     $EXEC_FILE
     ret=$?
 
