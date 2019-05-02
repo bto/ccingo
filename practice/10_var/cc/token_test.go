@@ -136,6 +136,9 @@ func TestTokenizeVar(t *testing.T) {
 	if tk := tks.next(); !tk.checkChar(';') {
 		t.Fatal("invalid token:", tk)
 	}
+	if tk := tks.next(); tk.ty != TK_EOF {
+		t.Fatal("invalid token:", tk)
+	}
 }
 
 func TestTokenizeReturn(t *testing.T) {
