@@ -156,6 +156,9 @@ func TestTokenizeReturn(t *testing.T) {
 	if tk := tks.next(); !tk.checkChar(';') {
 		t.Fatal("invalid token:", tk)
 	}
+	if tk := tks.next(); tk.ty != TK_EOF {
+		t.Fatal("invalid token:", tk)
+	}
 }
 
 func TestTokenizeIdent(t *testing.T) {
@@ -171,6 +174,9 @@ func TestTokenizeIdent(t *testing.T) {
 		t.Fatal("invalid token:", tk)
 	}
 	if tk := tks.next(); !tk.checkWord(TK_IDENT, "bar") {
+		t.Fatal("invalid token:", tk)
+	}
+	if tk := tks.next(); tk.ty != TK_EOF {
 		t.Fatal("invalid token:", tk)
 	}
 }
