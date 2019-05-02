@@ -17,7 +17,7 @@ func (nds nodes) PrintAsm() {
 	vars := newVariables()
 	lb := newLabel()
 	for _, nd := range nds {
-		gen(&nd, vars, lb)
+		nd.gen(vars, lb)
 		fmt.Println("  pop rax")
 	}
 
@@ -26,19 +26,19 @@ func (nds nodes) PrintAsm() {
 	fmt.Println("  ret")
 }
 
-func gen(nd *node, vars *variables, lb *label) {
+func (nd *node) gen(vars *variables, lb *label) {
 	switch nd.ty {
 	case ND_NUM:
 		fmt.Println("  push", nd.val)
 		return
 	case ND_VAR:
-		genLval(nd, vars)
+		nd.genLval(vars)
 		fmt.Println("  pop rax")
 		fmt.Println("  mov rax, [rax]")
 		fmt.Println("  push rax")
 		return
 	case ND_RETURN:
-		gen(nd.lhs, vars, lb)
+		nd.lhs.gen(vars, lb)
 		fmt.Println("  pop rax")
 		fmt.Println("  mov rsp, rbp")
 		fmt.Println("  pop rbp")
@@ -46,34 +46,34 @@ func gen(nd *node, vars *variables, lb *label) {
 		return
 	case ND_IF:
 		lbIf := lb.get("if")
-		gen(nd.lhs, vars, lb)
+		nd.lhs.gen(vars, lb)
 		fmt.Println("  pop rax")
 		fmt.Println("  cmp rax, 0")
 		fmt.Println("  je", lbIf)
-		gen(nd.rhs, vars, lb)
+		nd.rhs.gen(vars, lb)
 		fmt.Println(lbIf + ":")
 		return
 	case ND_WHILE:
 		lbBegin := lb.get("begin")
 		lbEnd := lb.get("end")
 		fmt.Println(lbBegin + ":")
-		gen(nd.lhs, vars, lb)
+		nd.lhs.gen(vars, lb)
 		fmt.Println("  pop rax")
 		fmt.Println("  cmp rax, 0")
 		fmt.Println("  je", lbEnd)
-		gen(nd.rhs, vars, lb)
+		nd.rhs.gen(vars, lb)
 		fmt.Println("  jmp", lbBegin)
 		fmt.Println(lbEnd + ":")
 		return
 	case ND_BLOCK:
 		for _, nd1 := range nd.nds {
-			gen(&nd1, vars, lb)
+			nd1.gen(vars, lb)
 			fmt.Println("  pop rax")
 		}
 		return
 	case int('='):
-		genLval(nd.lhs, vars)
-		gen(nd.rhs, vars, lb)
+		nd.lhs.genLval(vars)
+		nd.rhs.gen(vars, lb)
 		fmt.Println("  pop rdi")
 		fmt.Println("  pop rax")
 		fmt.Println("  mov [rax], rdi")
@@ -81,8 +81,8 @@ func gen(nd *node, vars *variables, lb *label) {
 		return
 	}
 
-	gen(nd.lhs, vars, lb)
-	gen(nd.rhs, vars, lb)
+	nd.lhs.gen(vars, lb)
+	nd.rhs.gen(vars, lb)
 
 	fmt.Println("  pop rdi")
 	fmt.Println("  pop rax")
@@ -118,7 +118,7 @@ func gen(nd *node, vars *variables, lb *label) {
 	fmt.Println("  push rax")
 }
 
-func genLval(nd *node, vars *variables) {
+func (nd *node) genLval(vars *variables) {
 	if nd.ty != ND_VAR {
 		log.Fatal("代入の左辺値が変数ではありません")
 	}
