@@ -13,84 +13,84 @@ type node struct {
 	lhs, rhs *node
 }
 
-func Parse(tks *tokens) *node {
-	nd := add(tks)
+func (tks *tokens) Parse() *node {
+	nd := tks.add()
 	if !tks.consume(TK_EOF) {
 		log.Fatal("不正なトークンです: ", string(tks.current().input))
 	}
 	return nd
 }
 
-func add(tks *tokens) *node {
-	nd := mul(tks)
-	return addx(tks, nd)
+func (tks *tokens) add() *node {
+	nd := tks.mul()
+	return tks.addx(nd)
 }
 
-func addx(tks *tokens, nd *node) *node {
+func (tks *tokens) addx(nd *node) *node {
 	switch {
 	case tks.consume('+'):
-		ndMul := mul(tks)
+		ndMul := tks.mul()
 		nd = &node{
 			ty:  '+',
 			lhs: nd,
 			rhs: ndMul,
 		}
-		return addx(tks, nd)
+		return tks.addx(nd)
 	case tks.consume('-'):
-		ndMul := mul(tks)
+		ndMul := tks.mul()
 		nd = &node{
 			ty:  '-',
 			lhs: nd,
 			rhs: ndMul,
 		}
-		return addx(tks, nd)
+		return tks.addx(nd)
 	default:
 		return nd
 	}
 }
 
-func mul(tks *tokens) *node {
-	nd := term(tks)
-	return mulx(tks, nd)
+func (tks *tokens) mul() *node {
+	nd := tks.term()
+	return tks.mulx(nd)
 }
 
-func mulx(tks *tokens, nd *node) *node {
+func (tks *tokens) mulx(nd *node) *node {
 	switch {
 	case tks.consume('*'):
-		ndTerm := term(tks)
+		ndTerm := tks.term()
 		nd = &node{
 			ty:  '*',
 			lhs: nd,
 			rhs: ndTerm,
 		}
-		return mulx(tks, nd)
+		return tks.mulx(nd)
 	case tks.consume('/'):
-		ndTerm := term(tks)
+		ndTerm := tks.term()
 		nd = &node{
 			ty:  '/',
 			lhs: nd,
 			rhs: ndTerm,
 		}
-		return mulx(tks, nd)
+		return tks.mulx(nd)
 	default:
 		return nd
 	}
 }
 
-func term(tks *tokens) *node {
+func (tks *tokens) term() *node {
 	switch {
 	case tks.consume('('):
-		nd := add(tks)
+		nd := tks.add()
 		if !tks.consume(')') {
 			log.Fatal("閉じカッコがありません: ", string(tks.current().input))
 		}
 		return nd
 	default:
-		return num(tks)
+		return tks.num()
 	}
 }
 
-func num(tks *tokens) *node {
+func (tks *tokens) num() *node {
 	tk := tks.current()
 	if tk.ty != TK_NUM {
 		log.Fatal("数値ではないトークンです: ", string(tk.input))

@@ -21,27 +21,27 @@ type node struct {
 	lhs, rhs *node
 }
 
-func Parse(tks *tokens) []node {
-	nds := program(tks)
+func (tks *tokens) Parse() []node {
+	nds := tks.program()
 	if !tks.consume(TK_EOF) {
 		log.Fatal("不正なトークンです: ", string(tks.current().input))
 	}
 	return nds
 }
 
-func program(tks *tokens) (nds []node) {
+func (tks *tokens) program() (nds []node) {
 	for tks.current().ty != TK_EOF {
-		nds = append(nds, *stmt(tks))
+		nds = append(nds, *tks.stmt())
 	}
 	return
 }
 
-func stmt(tks *tokens) *node {
+func (tks *tokens) stmt() *node {
 	tk := tks.current()
 	switch tk.ty {
 	case TK_RETURN:
 		tks.next()
-		ndAssign := assign(tks)
+		ndAssign := tks.assign()
 		if !tks.consume(';') {
 			log.Fatal("';'ではないトークンです: ", string(tks.current().input))
 		}
@@ -50,9 +50,9 @@ func stmt(tks *tokens) *node {
 			lhs: ndAssign,
 		}
 	case TK_IF, TK_WHILE:
-		return control(tks)
+		return tks.control()
 	default:
-		nd := assign(tks)
+		nd := tks.assign()
 		if !tks.consume(';') {
 			log.Fatal("';'ではないトークンです: ", string(tks.current().input))
 		}
@@ -60,17 +60,17 @@ func stmt(tks *tokens) *node {
 	}
 }
 
-func control(tks *tokens) *node {
+func (tks *tokens) control() *node {
 	switch {
 	case tks.consume(TK_IF):
 		if !tks.consume('(') {
 			log.Fatal("ifの開きカッコがありません: ", string(tks.current().input))
 		}
-		ndAssign := assign(tks)
+		ndAssign := tks.assign()
 		if !tks.consume(')') {
 			log.Fatal("ifの閉じカッコがありません: ", string(tks.current().input))
 		}
-		ndStmt := stmt(tks)
+		ndStmt := tks.stmt()
 		return &node{
 			ty:  ND_IF,
 			lhs: ndAssign,
@@ -80,11 +80,11 @@ func control(tks *tokens) *node {
 		if !tks.consume('(') {
 			log.Fatal("whileの開きカッコがありません: ", string(tks.current().input))
 		}
-		ndAssign := assign(tks)
+		ndAssign := tks.assign()
 		if !tks.consume(')') {
 			log.Fatal("whileの閉じカッコがありません: ", string(tks.current().input))
 		}
-		ndStmt := stmt(tks)
+		ndStmt := tks.stmt()
 		return &node{
 			ty:  ND_WHILE,
 			lhs: ndAssign,
@@ -96,14 +96,14 @@ func control(tks *tokens) *node {
 	return &node{}
 }
 
-func assign(tks *tokens) *node {
-	nd := equality(tks)
+func (tks *tokens) assign() *node {
+	nd := tks.equality()
 
 	if !tks.consume('=') {
 		return nd
 	}
 
-	ndEq := assign(tks)
+	ndEq := tks.assign()
 	return &node{
 		ty:  '=',
 		lhs: nd,
@@ -111,175 +111,175 @@ func assign(tks *tokens) *node {
 	}
 }
 
-func equality(tks *tokens) *node {
-	nd := relational(tks)
-	return equalityx(tks, nd)
+func (tks *tokens) equality() *node {
+	nd := tks.relational()
+	return tks.equalityx(nd)
 }
 
-func equalityx(tks *tokens, nd *node) *node {
+func (tks *tokens) equalityx(nd *node) *node {
 	switch {
 	case tks.consume(TK_EQ):
-		ndRel := relational(tks)
+		ndRel := tks.relational()
 		nd = &node{
 			ty:  ND_EQ,
 			lhs: nd,
 			rhs: ndRel,
 		}
-		return equalityx(tks, nd)
+		return tks.equalityx(nd)
 	case tks.consume(TK_NE):
-		ndRel := relational(tks)
+		ndRel := tks.relational()
 		nd = &node{
 			ty:  ND_NE,
 			lhs: nd,
 			rhs: ndRel,
 		}
-		return equalityx(tks, nd)
+		return tks.equalityx(nd)
 	default:
 		return nd
 	}
 }
 
-func relational(tks *tokens) *node {
-	nd := add(tks)
-	return relationalx(tks, nd)
+func (tks *tokens) relational() *node {
+	nd := tks.add()
+	return tks.relationalx(nd)
 }
 
-func relationalx(tks *tokens, nd *node) *node {
+func (tks *tokens) relationalx(nd *node) *node {
 	switch {
 	case tks.consume('<'):
-		ndAdd := add(tks)
+		ndAdd := tks.add()
 		nd = &node{
 			ty:  '<',
 			lhs: nd,
 			rhs: ndAdd,
 		}
-		return relationalx(tks, nd)
+		return tks.relationalx(nd)
 	case tks.consume(TK_LE):
-		ndAdd := add(tks)
+		ndAdd := tks.add()
 		nd = &node{
 			ty:  ND_LE,
 			lhs: nd,
 			rhs: ndAdd,
 		}
-		return relationalx(tks, nd)
+		return tks.relationalx(nd)
 	case tks.consume('>'):
-		ndAdd := add(tks)
+		ndAdd := tks.add()
 		nd = &node{
 			ty:  '<',
 			lhs: ndAdd,
 			rhs: nd,
 		}
-		return relationalx(tks, nd)
+		return tks.relationalx(nd)
 	case tks.consume(TK_GE):
-		ndAdd := add(tks)
+		ndAdd := tks.add()
 		nd = &node{
 			ty:  ND_LE,
 			lhs: ndAdd,
 			rhs: nd,
 		}
-		return relationalx(tks, nd)
+		return tks.relationalx(nd)
 	default:
 		return nd
 	}
 }
 
-func add(tks *tokens) *node {
-	nd := mul(tks)
-	return addx(tks, nd)
+func (tks *tokens) add() *node {
+	nd := tks.mul()
+	return tks.addx(nd)
 }
 
-func addx(tks *tokens, nd *node) *node {
+func (tks *tokens) addx(nd *node) *node {
 	switch {
 	case tks.consume('+'):
-		ndMul := mul(tks)
+		ndMul := tks.mul()
 		nd = &node{
 			ty:  '+',
 			lhs: nd,
 			rhs: ndMul,
 		}
-		return addx(tks, nd)
+		return tks.addx(nd)
 	case tks.consume('-'):
-		ndMul := mul(tks)
+		ndMul := tks.mul()
 		nd = &node{
 			ty:  '-',
 			lhs: nd,
 			rhs: ndMul,
 		}
-		return addx(tks, nd)
+		return tks.addx(nd)
 	default:
 		return nd
 	}
 }
 
-func mul(tks *tokens) *node {
-	nd := unary(tks)
-	return mulx(tks, nd)
+func (tks *tokens) mul() *node {
+	nd := tks.unary()
+	return tks.mulx(nd)
 }
 
-func mulx(tks *tokens, nd *node) *node {
+func (tks *tokens) mulx(nd *node) *node {
 	switch {
 	case tks.consume('*'):
-		ndUnary := unary(tks)
+		ndUnary := tks.unary()
 		nd = &node{
 			ty:  '*',
 			lhs: nd,
 			rhs: ndUnary,
 		}
-		return mulx(tks, nd)
+		return tks.mulx(nd)
 	case tks.consume('/'):
-		ndUnary := unary(tks)
+		ndUnary := tks.unary()
 		nd = &node{
 			ty:  '/',
 			lhs: nd,
 			rhs: ndUnary,
 		}
-		return mulx(tks, nd)
+		return tks.mulx(nd)
 	default:
 		return nd
 	}
 }
 
-func unary(tks *tokens) (nd *node) {
+func (tks *tokens) unary() (nd *node) {
 	switch {
 	case tks.consume('+'):
-		return term(tks)
+		return tks.term()
 	case tks.consume('-'):
 		ndZero := &node{
 			ty:  ND_NUM,
 			val: 0,
 		}
-		ndTerm := term(tks)
+		ndTerm := tks.term()
 		return &node{
 			ty:  '-',
 			lhs: ndZero,
 			rhs: ndTerm,
 		}
 	default:
-		return term(tks)
+		return tks.term()
 	}
 }
 
-func term(tks *tokens) (nd *node) {
+func (tks *tokens) term() (nd *node) {
 	tk := tks.current()
 
 	switch {
 	case tks.consume('('):
-		nd = assign(tks)
+		nd = tks.assign()
 		if !tks.consume(')') {
 			log.Fatal("閉じカッコがありません: ", string(tks.current().input))
 		}
 		return
 	case tk.ty == TK_NUM:
-		return num(tks)
+		return tks.num()
 	case tk.ty == TK_IDENT:
-		return ident(tks)
+		return tks.ident()
 	}
 
 	log.Fatal("不正なトークンです: ", string(tk.input))
 	return
 }
 
-func num(tks *tokens) *node {
+func (tks *tokens) num() *node {
 	tk := tks.current()
 	if tk.ty != TK_NUM {
 		log.Fatal("数値ではないトークンです: ", string(tk.input))
@@ -292,7 +292,7 @@ func num(tks *tokens) *node {
 	}
 }
 
-func ident(tks *tokens) *node {
+func (tks *tokens) ident() *node {
 	tk := tks.current()
 	if tk.ty != TK_IDENT {
 		log.Fatal("変数ではないトークンです: ", string(tk.input))

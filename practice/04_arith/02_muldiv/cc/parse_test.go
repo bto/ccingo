@@ -56,7 +56,7 @@ func TestParseMulDiv(t *testing.T) {
 	tks.append(token{ty: '/'})
 	tks.append(token{ty: TK_NUM, val: 5})
 	tks.append(token{ty: TK_EOF})
-	nd := Parse(tks)
+	nd := tks.Parse()
 	if !nd.checkOp('-') {
 		t.Fatal("invalid node:", nd)
 	}

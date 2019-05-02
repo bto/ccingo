@@ -8,7 +8,7 @@ func TestParseNum(t *testing.T) {
 	tks := &tokens{}
 	tks.append(token{ty: TK_NUM, val: 1})
 	tks.append(token{ty: ';'}).append(token{ty: TK_EOF})
-	nd := Parse(tks)[0]
+	nd := tks.Parse()[0]
 	if !nd.checkNum(1) {
 		t.Fatal("invalid node:", nd)
 	}
@@ -22,7 +22,7 @@ func TestParseAddSub(t *testing.T) {
 	tks.append(token{ty: '-'})
 	tks.append(token{ty: TK_NUM, val: 3})
 	tks.append(token{ty: ';'}).append(token{ty: TK_EOF})
-	nd := Parse(tks)[0]
+	nd := tks.Parse()[0]
 	if !nd.checkOp('-') {
 		t.Fatal("invalid node:", nd)
 	}
@@ -56,7 +56,7 @@ func TestParseMulDiv(t *testing.T) {
 	tks.append(token{ty: '/'})
 	tks.append(token{ty: TK_NUM, val: 5})
 	tks.append(token{ty: ';'}).append(token{ty: TK_EOF})
-	nd := Parse(tks)[0]
+	nd := tks.Parse()[0]
 	if !nd.checkOp('-') {
 		t.Fatal("invalid node:", nd)
 	}
@@ -104,7 +104,7 @@ func TestParseTerm(t *testing.T) {
 	tks.append(token{ty: '*'})
 	tks.append(token{ty: TK_NUM, val: 3})
 	tks.append(token{ty: ';'}).append(token{ty: TK_EOF})
-	nd := Parse(tks)[0]
+	nd := tks.Parse()[0]
 	if !nd.checkOp('*') {
 		t.Fatal("invalid node:", nd)
 	}
@@ -134,7 +134,7 @@ func TestParseUnary(t *testing.T) {
 	tks.append(token{ty: '-'})
 	tks.append(token{ty: TK_NUM, val: 2})
 	tks.append(token{ty: ';'}).append(token{ty: TK_EOF})
-	nd := Parse(tks)[0]
+	nd := tks.Parse()[0]
 	if !nd.checkOp('+') {
 		t.Fatal("invalid node:", nd)
 	}
@@ -177,7 +177,7 @@ func TestParseComp(t *testing.T) {
 	tks.append(token{ty: TK_GE})
 	tks.append(token{ty: TK_NUM, val: 9})
 	tks.append(token{ty: ';'}).append(token{ty: TK_EOF})
-	nd := Parse(tks)[0]
+	nd := tks.Parse()[0]
 	if !nd.checkOp(ND_EQ) {
 		t.Fatal("invalid node:", nd)
 	}
@@ -260,7 +260,7 @@ func TestParseVar(t *testing.T) {
 	tks.append(token{ty: ';'})
 	tks.append(token{ty: TK_IDENT, input: []byte("a")})
 	tks.append(token{ty: ';'}).append(token{ty: TK_EOF})
-	nds := Parse(tks)
+	nds := tks.Parse()
 
 	nd := nds[0]
 	if !nd.checkOp('=') {
@@ -305,7 +305,7 @@ func TestParseReturn(t *testing.T) {
 	tks.append(token{ty: '='})
 	tks.append(token{ty: TK_NUM, val: 1})
 	tks.append(token{ty: ';'}).append(token{ty: TK_EOF})
-	nd := Parse(tks)[0]
+	nd := tks.Parse()[0]
 	if !nd.checkUnary(ND_RETURN) {
 		t.Fatal("invalid node:", nd)
 	}
@@ -335,7 +335,7 @@ func TestParseIf(t *testing.T) {
 	tks.append(token{ty: TK_RETURN})
 	tks.append(token{ty: TK_NUM, val: 2})
 	tks.append(token{ty: ';'}).append(token{ty: TK_EOF})
-	nd := Parse(tks)[0]
+	nd := tks.Parse()[0]
 	if !nd.checkOp(ND_IF) {
 		t.Fatal("invalid node:", nd)
 	}
@@ -373,7 +373,7 @@ func TestParseWhile(t *testing.T) {
 	tks.append(token{ty: TK_RETURN})
 	tks.append(token{ty: TK_NUM, val: 2})
 	tks.append(token{ty: ';'}).append(token{ty: TK_EOF})
-	nd := Parse(tks)[0]
+	nd := tks.Parse()[0]
 	if !nd.checkOp(ND_WHILE) {
 		t.Fatal("invalid node:", nd)
 	}
@@ -419,7 +419,7 @@ func TestParseFor(t *testing.T) {
 	tks.append(token{ty: TK_RETURN})
 	tks.append(token{ty: TK_NUM, val: 4})
 	tks.append(token{ty: ';'}).append(token{ty: TK_EOF})
-	nd := Parse(tks)[0]
+	nd := tks.Parse()[0]
 	if !nd.checkOp(0) {
 		t.Fatal("invalid node:", nd)
 	}
@@ -496,7 +496,7 @@ func TestParseBlock(t *testing.T) {
 	tks.append(token{ty: '}'})
 	tks.append(token{ty: '}'})
 	tks.append(token{ty: TK_EOF})
-	nd := Parse(tks)[0]
+	nd := tks.Parse()[0]
 	if !nd.checkBlock(3) {
 		t.Fatal("invalid node:", nd)
 	}
@@ -526,7 +526,7 @@ func TestParseFunc(t *testing.T) {
 	tks.append(token{ty: '('})
 	tks.append(token{ty: ')'})
 	tks.append(token{ty: ';'}).append(token{ty: TK_EOF})
-	nds := Parse(tks)
+	nds := tks.Parse()
 	nd := nds[0]
 	if !nd.checkOp('-') {
 		t.Fatal("invalid node:", nd)

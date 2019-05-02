@@ -10,6 +10,6 @@ import (
 func main() {
 	rd := bufio.NewReader(os.Stdin)
 	tks := cc.Tokenize(rd)
-	nds := cc.Parse(tks)
+	nds := tks.Parse()
 	cc.PrintAsm(nds)
 }
