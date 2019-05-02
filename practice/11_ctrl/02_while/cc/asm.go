@@ -3,17 +3,7 @@ package cc
 import (
 	"fmt"
 	"log"
-	"strconv"
 )
-
-type label struct {
-	n int
-}
-
-func (lb *label) get(key string) string {
-	lb.n++
-	return "." + key + strconv.Itoa(lb.n)
-}
 
 func PrintAsm(nds []node) {
 	fmt.Println(".intel_syntax noprefix")
@@ -25,9 +15,9 @@ func PrintAsm(nds []node) {
 	fmt.Println("  sub rsp, 208")
 
 	vars := newVariables()
-	lb := label{}
+	lb := newLabel()
 	for _, nd := range nds {
-		gen(&nd, vars, &lb)
+		gen(&nd, vars, lb)
 		fmt.Println("  pop rax")
 	}
 
