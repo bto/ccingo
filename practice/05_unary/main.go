@@ -11,5 +11,5 @@ func main() {
 	rd := bufio.NewReader(os.Stdin)
 	tks := cc.Tokenize(rd)
 	nd := tks.Parse()
-	cc.PrintAsm(nd)
+	nd.PrintAsm()
 }

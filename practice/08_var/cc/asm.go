@@ -15,7 +15,7 @@ func PrintAsm(nds []node) {
 	fmt.Println("  sub rsp, 208")
 
 	for _, nd := range nds {
-		gen(&nd)
+		nd.gen()
 		fmt.Println("  pop rax")
 	}
 
@@ -24,20 +24,20 @@ func PrintAsm(nds []node) {
 	fmt.Println("  ret")
 }
 
-func gen(nd *node) {
+func (nd *node)gen() {
 	switch nd.ty {
 	case ND_NUM:
 		fmt.Println("  push", nd.val)
 		return
 	case ND_VAR:
-		genLval(nd)
+		nd.genLval()
 		fmt.Println("  pop rax")
 		fmt.Println("  mov rax, [rax]")
 		fmt.Println("  push rax")
 		return
 	case int('='):
-		genLval(nd.lhs)
-		gen(nd.rhs)
+		nd.lhs.genLval()
+		nd.rhs.gen()
 		fmt.Println("  pop rdi")
 		fmt.Println("  pop rax")
 		fmt.Println("  mov [rax], rdi")
@@ -45,8 +45,8 @@ func gen(nd *node) {
 		return
 	}
 
-	gen(nd.lhs)
-	gen(nd.rhs)
+	nd.lhs.gen()
+	nd.rhs.gen()
 
 	fmt.Println("  pop rdi")
 	fmt.Println("  pop rax")
@@ -82,7 +82,7 @@ func gen(nd *node) {
 	fmt.Println("  push rax")
 }
 
-func genLval(nd *node) {
+func (nd *node)genLval() {
 	if nd.ty != ND_VAR {
 		log.Fatal("代入の左辺値が変数ではありません")
 	}

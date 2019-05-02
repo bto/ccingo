@@ -4,25 +4,25 @@ import (
 	"fmt"
 )
 
-func PrintAsm(nd *node) {
+func (nd *node)PrintAsm() {
 	fmt.Println(".intel_syntax noprefix")
 	fmt.Println(".global main")
 	fmt.Println("main:")
 
-	gen(nd)
+	nd.gen()
 
 	fmt.Println("  pop rax")
 	fmt.Println("  ret")
 }
 
-func gen(nd *node) {
+func (nd *node)gen() {
 	if nd.ty == ND_NUM {
 		fmt.Println("  push", nd.val)
 		return
 	}
 
-	gen(nd.lhs)
-	gen(nd.rhs)
+	nd.lhs.gen()
+	nd.rhs.gen()
 
 	fmt.Println("  pop rdi")
 	fmt.Println("  pop rax")
