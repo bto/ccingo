@@ -324,25 +324,45 @@ func (tks *tokens) term() (nd *node) {
 	case tk.ty == TK_IDENT:
 		name := string(tk.input)
 		tks.next()
-		if !tks.consume('(') {
+		if tks.consume('(') {
+			return tks.function(name)
+		} else {
 			return &node{
 				ty:   ND_VAR,
 				name: name,
 			}
 		}
-
-		nds := tks.args()
-		if !tks.consume(')') {
-			log.Fatal("関数の閉じカッコがありません: ", string(tks.current().input))
-		}
-		return &node{
-			ty:   ND_FUNC,
-			name: name,
-			nds:  nds,
-		}
 	}
 
 	log.Fatal("不正なトークンです: ", string(tk.input))
+	return
+}
+
+func (tks *tokens) function(name string) *node {
+	nds := tks.args()
+	if !tks.consume(')') {
+		log.Fatal("関数の閉じカッコがありません: ", string(tks.current().input))
+	}
+	return &node{
+		ty:   ND_FUNC,
+		name: name,
+		nds:  nds,
+	}
+}
+
+func (tks *tokens) args() (nds nodes) {
+	if tks.current().ty == ')' {
+		return
+	}
+
+	nds = append(nds, *tks.assign())
+
+	for tks.current().ty != ')' {
+		if !tks.consume(',') {
+			break
+		}
+		nds = append(nds, *tks.assign())
+	}
 	return
 }
 
@@ -357,22 +377,6 @@ func (tks *tokens) num() *node {
 		ty:  ND_NUM,
 		val: tk.val,
 	}
-}
-
-func (tks *tokens) args() (nds []node) {
-	if tks.current().ty == ')' {
-		return
-	}
-
-	nds = append(nds, *tks.assign())
-
-	for tks.current().ty != ')' {
-		if !tks.consume(',') {
-			break
-		}
-		nds = append(nds, *tks.assign())
-	}
-	return
 }
 
 func (tks *tokens) consume(ty int) bool {

@@ -28,10 +28,11 @@ mul: mul "/" unary
 unary: "+" term
 unary: "+" term
 unary: term
+term: function
 term: num
 term: ident
-term: ident "(" args ")"
 term: "(" assign ")"
+function: ident "(" args ")"
 args:
 args: assign arglist
 arglist:
@@ -71,10 +72,11 @@ mulx: "/" unary mulx
 unary: "+" term
 unary: "+" term
 unary: term
+term: function
 term: num
 term: ident
-term: ident "(" ")"
 term: "(" assign ")"
+function: ident "(" args ")"
 args:
 args: assign arglist
 arglist:

@@ -324,24 +324,28 @@ func (tks *tokens) term() (nd *node) {
 	case tk.ty == TK_IDENT:
 		name := string(tk.input)
 		tks.next()
-		if !tks.consume('(') {
+		if tks.consume('(') {
+			return tks.function(name)
+		} else {
 			return &node{
 				ty:   ND_VAR,
 				name: name,
 			}
 		}
-
-		if !tks.consume(')') {
-			log.Fatal("関数の閉じカッコがありません: ", string(tks.current().input))
-		}
-		return &node{
-			ty:   ND_FUNC,
-			name: name,
-		}
 	}
 
 	log.Fatal("不正なトークンです: ", string(tk.input))
 	return
+}
+
+func (tks *tokens) function(name string) *node {
+	if !tks.consume(')') {
+		log.Fatal("関数の閉じカッコがありません: ", string(tks.current().input))
+	}
+	return &node{
+		ty:   ND_FUNC,
+		name: name,
+	}
 }
 
 func (tks *tokens) num() *node {
