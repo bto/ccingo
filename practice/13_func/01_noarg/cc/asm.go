@@ -72,6 +72,7 @@ func gen(nd *node, vars *variables, lb *label) {
 		}
 		return
 	case ND_FUNC:
+		fmt.Println("  mov rax, 0")
 		fmt.Printf("  call %s@PLT\n", nd.name)
 		fmt.Println("  push rax")
 		return
