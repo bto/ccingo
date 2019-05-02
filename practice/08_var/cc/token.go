@@ -32,24 +32,6 @@ func (tks *tokens) append(tk token) *tokens {
 	return tks
 }
 
-func (tks *tokens) consume(ty int) bool {
-	if tks.tks[tks.i].ty == ty {
-		tks.i++
-		return true
-	} else {
-		return false
-	}
-}
-
-func (tks *tokens) current() token {
-	return tks.tks[tks.i]
-}
-
-func (tks *tokens) next() token {
-	tks.i++
-	return tks.tks[tks.i]
-}
-
 func Tokenize(rd *bufio.Reader) (tks *tokens) {
 	var c byte
 	var err error

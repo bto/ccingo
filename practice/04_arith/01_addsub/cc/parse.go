@@ -13,43 +13,43 @@ type node struct {
 	lhs, rhs *node
 }
 
-func Parse(tks *tokens) *node {
-	nd := add(tks)
+func (tks *tokens) Parse() *node {
+	nd := tks.add()
 	if !tks.consume(TK_EOF) {
 		log.Fatal("不正なトークンです: ", string(tks.current().input))
 	}
 	return nd
 }
 
-func add(tks *tokens) *node {
-	nd := num(tks)
-	return addx(tks, nd)
+func (tks *tokens) add() *node {
+	nd := tks.num()
+	return tks.addx(nd)
 }
 
-func addx(tks *tokens, nd *node) *node {
+func (tks *tokens) addx(nd *node) *node {
 	switch {
 	case tks.consume('+'):
-		ndNum := num(tks)
+		ndNum := tks.num()
 		nd = &node{
 			ty:  '+',
 			lhs: nd,
 			rhs: ndNum,
 		}
-		return addx(tks, nd)
+		return tks.addx(nd)
 	case tks.consume('-'):
-		ndNum := num(tks)
+		ndNum := tks.num()
 		nd = &node{
 			ty:  '-',
 			lhs: nd,
 			rhs: ndNum,
 		}
-		return addx(tks, nd)
+		return tks.addx(nd)
 	default:
 		return nd
 	}
 }
 
-func num(tks *tokens) *node {
+func (tks *tokens) num() *node {
 	tk := tks.current()
 	if tk.ty != TK_NUM {
 		log.Fatal("数値ではないトークンです: ", string(tk.input))
@@ -60,4 +60,22 @@ func num(tks *tokens) *node {
 		ty:  ND_NUM,
 		val: tk.val,
 	}
+}
+
+func (tks *tokens) consume(ty int) bool {
+	if tks.tks[tks.i].ty == ty {
+		tks.i++
+		return true
+	} else {
+		return false
+	}
+}
+
+func (tks *tokens) current() token {
+	return tks.tks[tks.i]
+}
+
+func (tks *tokens) next() token {
+	tks.i++
+	return tks.tks[tks.i]
 }
