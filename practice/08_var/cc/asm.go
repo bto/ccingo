@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-func PrintAsm(nds []node) {
+func (nds nodes) PrintAsm() {
 	fmt.Println(".intel_syntax noprefix")
 	fmt.Println(".global main")
 	fmt.Println("main:")

@@ -24,7 +24,9 @@ type node struct {
 	nds      []node
 }
 
-func (tks *tokens) Parse() []node {
+type nodes []node
+
+func (tks *tokens) Parse() nodes {
 	nds := tks.program()
 	if !tks.consume(TK_EOF) {
 		log.Fatal("不正なトークンです: ", string(tks.current().input))
@@ -32,7 +34,7 @@ func (tks *tokens) Parse() []node {
 	return nds
 }
 
-func (tks *tokens) program() (nds []node) {
+func (tks *tokens) program() (nds nodes) {
 	for tks.current().ty != TK_EOF {
 		nds = append(nds, *tks.stmt())
 	}
