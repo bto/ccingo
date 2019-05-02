@@ -478,7 +478,7 @@ func TestParseFor(t *testing.T) {
 }
 
 func (nd *node) checkIdent(name string) bool {
-	return nd.ty == ND_IDENT && nd.name == name && nd.lhs == nil && nd.rhs == nil
+	return nd.ty == ND_VAR && nd.name == name && nd.lhs == nil && nd.rhs == nil
 }
 
 func (nd *node) checkNum(val int) bool {

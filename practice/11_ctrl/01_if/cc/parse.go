@@ -9,7 +9,7 @@ const (
 	ND_EQ
 	ND_NE
 	ND_LE
-	ND_IDENT
+	ND_VAR
 	ND_RETURN
 	ND_IF
 )
@@ -285,7 +285,7 @@ func ident(tks *tokens) *node {
 
 	tks.next()
 	return &node{
-		ty:   ND_IDENT,
+		ty:   ND_VAR,
 		name: string(tk.input),
 	}
 }

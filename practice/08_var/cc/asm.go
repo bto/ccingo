@@ -29,7 +29,7 @@ func gen(nd *node) {
 	case ND_NUM:
 		fmt.Println("  push", nd.val)
 		return
-	case ND_IDENT:
+	case ND_VAR:
 		genLval(nd)
 		fmt.Println("  pop rax")
 		fmt.Println("  mov rax, [rax]")
@@ -83,7 +83,7 @@ func gen(nd *node) {
 }
 
 func genLval(nd *node) {
-	if nd.ty != ND_IDENT {
+	if nd.ty != ND_VAR {
 		log.Fatal("代入の左辺値が変数ではありません")
 	}
 
