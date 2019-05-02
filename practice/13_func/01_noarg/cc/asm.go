@@ -71,6 +71,10 @@ func gen(nd *node, vars *variables, lb *label) {
 			fmt.Println("  pop rax")
 		}
 		return
+	case ND_FUNC:
+		fmt.Printf("  call %s@PLT\n", nd.name)
+		fmt.Println("  push rax")
+		return
 	case int('='):
 		genLval(nd.lhs, vars)
 		gen(nd.rhs, vars, lb)
