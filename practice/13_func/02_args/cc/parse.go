@@ -329,12 +329,14 @@ func term(tks *tokens) (nd *node) {
 			}
 		}
 
+		nds := args(tks)
 		if !tks.consume(')') {
 			log.Fatal("関数の閉じカッコがありません: ", string(tks.current().input))
 		}
 		return &node{
 			ty:   ND_FUNC,
 			name: name,
+			nds:  nds,
 		}
 	}
 
@@ -353,4 +355,20 @@ func num(tks *tokens) *node {
 		ty:  ND_NUM,
 		val: tk.val,
 	}
+}
+
+func args(tks *tokens) (nds []node) {
+	if tks.current().ty == ')' {
+		return
+	}
+
+	nds = append(nds, *assign(tks))
+
+	for tks.current().ty != ')' {
+		if !tks.consume(',') {
+			break
+		}
+		nds = append(nds, *assign(tks))
+	}
+	return
 }

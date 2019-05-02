@@ -30,8 +30,12 @@ unary: "+" term
 unary: term
 term: num
 term: ident
-term: ident "(" ")"
+term: ident "(" args ")"
 term: "(" assign ")"
+args:
+args: assign arglist
+arglist:
+arglist: "," assign arglist
 
 
 program:
@@ -71,3 +75,7 @@ term: num
 term: ident
 term: ident "(" ")"
 term: "(" assign ")"
+args:
+args: assign arglist
+arglist:
+arglist: "," assign arglist
