@@ -1,9 +1,17 @@
 TOP_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 BUILD_DIR = $(TOP_DIR)/build
 PRACTICE_DIR = $(TOP_DIR)/practice
+C_DIR = $(PRACTICE_DIR)/c
 
 .PHONY: all
-all: test
+all: build test
+
+.PHONY: build
+build: $(patsubst %.c, %.o, $(wildcard $(C_DIR)/*.c))
+
+.PHONY: clean
+clean:
+	rm -f $(C_DIR)/*.o
 
 .PHONY: fmt
 fmt:
