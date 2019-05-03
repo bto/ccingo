@@ -27,31 +27,47 @@ func (nds nodes) PrintAsm() {
 func (nd *node) gen() {
 	switch nd.ty {
 	case ND_NUM:
-		fmt.Println("  push", nd.val)
-		return
+		nd.genNum()
 	case ND_VAR:
-		nd.genLval()
-		fmt.Println("  pop rax")
-		fmt.Println("  mov rax, [rax]")
-		fmt.Println("  push rax")
-		return
+		nd.genVar()
 	case ND_RETURN:
-		nd.lhs.gen()
-		fmt.Println("  pop rax")
-		fmt.Println("  mov rsp, rbp")
-		fmt.Println("  pop rbp")
-		fmt.Println("  ret")
-		return
+		nd.genReturn()
 	case int('='):
-		nd.lhs.genLval()
-		nd.rhs.gen()
-		fmt.Println("  pop rdi")
-		fmt.Println("  pop rax")
-		fmt.Println("  mov [rax], rdi")
-		fmt.Println("  push rdi")
-		return
+		nd.genAssign()
+	default:
+		nd.genOp()
 	}
+}
 
+func (nd *node) genNum() {
+	fmt.Println("  push", nd.val)
+}
+
+func (nd *node) genVar() {
+	nd.genLval()
+	fmt.Println("  pop rax")
+	fmt.Println("  mov rax, [rax]")
+	fmt.Println("  push rax")
+}
+
+func (nd *node) genReturn() {
+	nd.lhs.gen()
+	fmt.Println("  pop rax")
+	fmt.Println("  mov rsp, rbp")
+	fmt.Println("  pop rbp")
+	fmt.Println("  ret")
+}
+
+func (nd *node) genAssign() {
+	nd.lhs.genLval()
+	nd.rhs.gen()
+	fmt.Println("  pop rdi")
+	fmt.Println("  pop rax")
+	fmt.Println("  mov [rax], rdi")
+	fmt.Println("  push rdi")
+}
+
+func (nd *node) genOp() {
 	nd.lhs.gen()
 	nd.rhs.gen()
 
