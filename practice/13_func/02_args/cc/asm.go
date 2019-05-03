@@ -99,8 +99,70 @@ func (nd *node) genBlock(vars *variables, lb *label) {
 }
 
 func (nd *node) genFunc(vars *variables, lb *label) {
+	nd.genFuncArgs(vars, lb)
 	fmt.Printf("  call %s@PLT\n", nd.name)
 	fmt.Println("  push rax")
+}
+
+func (nd *node) genFuncArgs(vars *variables, lb *label) {
+	for _, nd1 := range nd.nds {
+		nd1.gen(vars, lb)
+	}
+
+	if len(nd.nds) < 1 {
+		return
+	}
+	fmt.Println("  mov rax, rsp")
+	offset := (len(nd.nds) - 1) * 8
+	fmt.Println("  add rax,", offset)
+	fmt.Println("  mov rdi, [rax]")
+
+	if len(nd.nds) < 2 {
+		fmt.Println("  sub rsp, 8")
+		return
+	}
+	fmt.Println("  mov rax, rsp")
+	offset = (len(nd.nds) - 2) * 8
+	fmt.Println("  add rax,", offset)
+	fmt.Println("  mov rsi, [rax]")
+
+	if len(nd.nds) < 3 {
+		fmt.Println("  sub rsp, 16")
+		return
+	}
+	fmt.Println("  mov rax, rsp")
+	offset = (len(nd.nds) - 3) * 8
+	fmt.Println("  add rax,", offset)
+	fmt.Println("  mov rdx, [rax]")
+
+	if len(nd.nds) < 4 {
+		fmt.Println("  sub rsp, 24")
+		return
+	}
+	fmt.Println("  mov rax, rsp")
+	offset = (len(nd.nds) - 4) * 8
+	fmt.Println("  add rax,", offset)
+	fmt.Println("  mov rcx, [rax]")
+
+	if len(nd.nds) < 5 {
+		fmt.Println("  sub rsp, 32")
+		return
+	}
+	fmt.Println("  mov rax, rsp")
+	offset = (len(nd.nds) - 5) * 8
+	fmt.Println("  add rax,", offset)
+	fmt.Println("  mov r8, [rax]")
+
+	if len(nd.nds) < 6 {
+		fmt.Println("  sub rsp, 40")
+		return
+	}
+	fmt.Println("  mov rax, rsp")
+	offset = (len(nd.nds) - 6) * 8
+	fmt.Println("  add rax,", offset)
+	fmt.Println("  mov r9, [rax]")
+
+	fmt.Println("  sub rsp, 48")
 }
 
 func (nd *node) genAssign(vars *variables, lb *label) {
