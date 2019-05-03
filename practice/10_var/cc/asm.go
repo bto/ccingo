@@ -28,31 +28,47 @@ func (nds nodes) PrintAsm() {
 func (nd *node) gen(vars *variables) {
 	switch nd.ty {
 	case ND_NUM:
-		fmt.Println("  push", nd.val)
-		return
+		nd.genNum()
 	case ND_VAR:
-		nd.genLval(vars)
-		fmt.Println("  pop rax")
-		fmt.Println("  mov rax, [rax]")
-		fmt.Println("  push rax")
-		return
+		nd.genVar(vars)
 	case ND_RETURN:
-		nd.lhs.gen(vars)
-		fmt.Println("  pop rax")
-		fmt.Println("  mov rsp, rbp")
-		fmt.Println("  pop rbp")
-		fmt.Println("  ret")
-		return
+		nd.genReturn(vars)
 	case int('='):
-		nd.lhs.genLval(vars)
-		nd.rhs.gen(vars)
-		fmt.Println("  pop rdi")
-		fmt.Println("  pop rax")
-		fmt.Println("  mov [rax], rdi")
-		fmt.Println("  push rdi")
-		return
+		nd.genAssign(vars)
+	default:
+		nd.genOp(vars)
 	}
+}
 
+func (nd *node) genNum() {
+	fmt.Println("  push", nd.val)
+}
+
+func (nd *node) genVar(vars *variables) {
+	nd.genLval(vars)
+	fmt.Println("  pop rax")
+	fmt.Println("  mov rax, [rax]")
+	fmt.Println("  push rax")
+}
+
+func (nd *node) genReturn(vars *variables) {
+	nd.lhs.gen(vars)
+	fmt.Println("  pop rax")
+	fmt.Println("  mov rsp, rbp")
+	fmt.Println("  pop rbp")
+	fmt.Println("  ret")
+}
+
+func (nd *node) genAssign(vars *variables) {
+	nd.lhs.genLval(vars)
+	nd.rhs.gen(vars)
+	fmt.Println("  pop rdi")
+	fmt.Println("  pop rax")
+	fmt.Println("  mov [rax], rdi")
+	fmt.Println("  push rdi")
+}
+
+func (nd *node) genOp(vars *variables) {
 	nd.lhs.gen(vars)
 	nd.rhs.gen(vars)
 
