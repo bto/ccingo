@@ -20,6 +20,6 @@ function try() {
     if [ $ret = $expected ]; then
         echo "OK: $input => $expected"
     else
-        echo "Failed: $input => $expected"
+        echo "Failed: $input => $ret, expected: $expected"
     fi
 }
