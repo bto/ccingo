@@ -1,3 +1,11 @@
 unsigned char retuchar();
 unsigned long retulong();
-int add(int, int, int, int, int, int, int, int, int, int);
+int add1(int);
+int add2(int, int);
+int add3(int, int, int);
+int add4(int, int, int, int);
+int add5(int, int, int, int, int);
+int add6(int, int, int, int, int, int);
+int add7(int, int, int, int, int, int, int);
+int add8(int, int, int, int, int, int, int, int);
+int add9(int, int, int, int, int, int, int, int, int);
