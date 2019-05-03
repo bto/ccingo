@@ -29,52 +29,74 @@ func (nds nodes) PrintAsm() {
 func (nd *node) gen(vars *variables, lb *label) {
 	switch nd.ty {
 	case ND_NUM:
-		fmt.Println("  push", nd.val)
-		return
+		nd.genNum()
 	case ND_VAR:
-		nd.genLval(vars)
-		fmt.Println("  pop rax")
-		fmt.Println("  mov rax, [rax]")
-		fmt.Println("  push rax")
-		return
+		nd.genVar(vars)
 	case ND_RETURN:
-		nd.lhs.gen(vars, lb)
-		fmt.Println("  pop rax")
-		fmt.Println("  mov rsp, rbp")
-		fmt.Println("  pop rbp")
-		fmt.Println("  ret")
-		return
+		nd.genReturn(vars, lb)
 	case ND_IF:
-		lbIf := lb.get("if")
-		nd.lhs.gen(vars, lb)
-		fmt.Println("  pop rax")
-		fmt.Println("  cmp rax, 0")
-		fmt.Println("  je", lbIf)
-		nd.rhs.gen(vars, lb)
-		fmt.Println(lbIf + ":")
-		return
+		nd.genIf(vars, lb)
 	case ND_WHILE:
-		lbBegin := lb.get("begin")
-		lbEnd := lb.get("end")
-		fmt.Println(lbBegin + ":")
-		nd.lhs.gen(vars, lb)
-		fmt.Println("  pop rax")
-		fmt.Println("  cmp rax, 0")
-		fmt.Println("  je", lbEnd)
-		nd.rhs.gen(vars, lb)
-		fmt.Println("  jmp", lbBegin)
-		fmt.Println(lbEnd + ":")
-		return
+		nd.genWhile(vars, lb)
 	case int('='):
-		nd.lhs.genLval(vars)
-		nd.rhs.gen(vars, lb)
-		fmt.Println("  pop rdi")
-		fmt.Println("  pop rax")
-		fmt.Println("  mov [rax], rdi")
-		fmt.Println("  push rdi")
-		return
+		nd.genAssign(vars, lb)
+	default:
+		nd.genOp(vars, lb)
 	}
+}
 
+func (nd *node) genNum() {
+	fmt.Println("  push", nd.val)
+}
+
+func (nd *node) genVar(vars *variables) {
+	nd.genLval(vars)
+	fmt.Println("  pop rax")
+	fmt.Println("  mov rax, [rax]")
+	fmt.Println("  push rax")
+}
+
+func (nd *node) genReturn(vars *variables, lb *label) {
+	nd.lhs.gen(vars, lb)
+	fmt.Println("  pop rax")
+	fmt.Println("  mov rsp, rbp")
+	fmt.Println("  pop rbp")
+	fmt.Println("  ret")
+}
+
+func (nd *node) genIf(vars *variables, lb *label) {
+	lbIf := lb.get("if")
+	nd.lhs.gen(vars, lb)
+	fmt.Println("  pop rax")
+	fmt.Println("  cmp rax, 0")
+	fmt.Println("  je", lbIf)
+	nd.rhs.gen(vars, lb)
+	fmt.Println(lbIf + ":")
+}
+
+func (nd *node) genWhile(vars *variables, lb *label) {
+	lbBegin := lb.get("begin")
+	lbEnd := lb.get("end")
+	fmt.Println(lbBegin + ":")
+	nd.lhs.gen(vars, lb)
+	fmt.Println("  pop rax")
+	fmt.Println("  cmp rax, 0")
+	fmt.Println("  je", lbEnd)
+	nd.rhs.gen(vars, lb)
+	fmt.Println("  jmp", lbBegin)
+	fmt.Println(lbEnd + ":")
+}
+
+func (nd *node) genAssign(vars *variables, lb *label) {
+	nd.lhs.genLval(vars)
+	nd.rhs.gen(vars, lb)
+	fmt.Println("  pop rdi")
+	fmt.Println("  pop rax")
+	fmt.Println("  mov [rax], rdi")
+	fmt.Println("  push rdi")
+}
+
+func (nd *node) genOp(vars *variables, lb *label) {
 	nd.lhs.gen(vars, lb)
 	nd.rhs.gen(vars, lb)
 
