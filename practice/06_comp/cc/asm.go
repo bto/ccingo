@@ -17,10 +17,17 @@ func (nd *node) PrintAsm() {
 
 func (nd *node) gen() {
 	if nd.ty == ND_NUM {
-		fmt.Println("  push", nd.val)
-		return
+		nd.genNum()
+	} else {
+		nd.genOp()
 	}
+}
 
+func (nd *node) genNum() {
+	fmt.Println("  push", nd.val)
+}
+
+func (nd *node) genOp() {
 	nd.lhs.gen()
 	nd.rhs.gen()
 
