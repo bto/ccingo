@@ -325,7 +325,7 @@ func (tks *tokens) term() (nd *node) {
 		name := string(tk.input)
 		tks.next()
 		if tks.consume('(') {
-			return tks.function(name)
+			return tks.funcCall(name)
 		} else {
 			return &node{
 				ty:   ND_VAR,
@@ -338,7 +338,7 @@ func (tks *tokens) term() (nd *node) {
 	return
 }
 
-func (tks *tokens) function(name string) *node {
+func (tks *tokens) funcCall(name string) *node {
 	nds := tks.args()
 	if !tks.consume(')') {
 		log.Fatal("関数の閉じカッコがありません: ", string(tks.current().input))
