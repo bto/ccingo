@@ -40,8 +40,8 @@ func (nd *node) gen(vars *variables, lb *label) {
 		nd.genWhile(vars, lb)
 	case ND_BLOCK:
 		nd.genBlock(vars, lb)
-	case ND_FUNC:
-		nd.genFunc(vars, lb)
+	case ND_FUNC_CALL:
+		nd.genFuncCall(vars, lb)
 	case int('='):
 		nd.genAssign(vars, lb)
 	default:
@@ -98,13 +98,13 @@ func (nd *node) genBlock(vars *variables, lb *label) {
 	}
 }
 
-func (nd *node) genFunc(vars *variables, lb *label) {
-	nd.genFuncArgs(vars, lb)
+func (nd *node) genFuncCall(vars *variables, lb *label) {
+	nd.genFuncCallArgs(vars, lb)
 	fmt.Printf("  call %s@PLT\n", nd.name)
 	fmt.Println("  push rax")
 }
 
-func (nd *node) genFuncArgs(vars *variables, lb *label) {
+func (nd *node) genFuncCallArgs(vars *variables, lb *label) {
 	for _, nd1 := range nd.nds {
 		nd1.gen(vars, lb)
 	}

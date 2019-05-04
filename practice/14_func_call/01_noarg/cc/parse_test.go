@@ -518,7 +518,7 @@ func TestParseBlock(t *testing.T) {
 	}
 }
 
-func TestParseFunc(t *testing.T) {
+func TestParseFuncCall(t *testing.T) {
 	// -foo();
 	tks := &tokens{}
 	tks.append(token{ty: '-'})
@@ -532,7 +532,7 @@ func TestParseFunc(t *testing.T) {
 		t.Fatal("invalid node:", nd)
 	}
 	ndr := nd.rhs
-	if !ndr.checkFunc("foo") {
+	if !ndr.checkFuncCall("foo") {
 		t.Fatal("invalid node:", ndr)
 	}
 	ndl := nd.lhs
@@ -545,8 +545,8 @@ func (nd *node) checkBlock(n int) bool {
 	return nd.ty == ND_BLOCK && len(nd.nds) == n && nd.lhs == nil && nd.rhs == nil
 }
 
-func (nd *node) checkFunc(name string) bool {
-	return nd.ty == ND_FUNC && nd.name == name
+func (nd *node) checkFuncCall(name string) bool {
+	return nd.ty == ND_FUNC_CALL && nd.name == name
 }
 
 func (nd *node) checkNum(val int) bool {

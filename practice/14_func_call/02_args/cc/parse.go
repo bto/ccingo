@@ -14,7 +14,7 @@ const (
 	ND_IF
 	ND_WHILE
 	ND_BLOCK
-	ND_FUNC
+	ND_FUNC_CALL
 )
 
 type node struct {
@@ -344,7 +344,7 @@ func (tks *tokens) function(name string) *node {
 		log.Fatal("関数の閉じカッコがありません: ", string(tks.current().input))
 	}
 	return &node{
-		ty:   ND_FUNC,
+		ty:   ND_FUNC_CALL,
 		name: name,
 		nds:  nds,
 	}
