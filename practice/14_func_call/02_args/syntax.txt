@@ -4,7 +4,7 @@ stmt: "{" block_items "}"
 stmt: control
 stmt: assign ";"
 stmt: return assign ";"
-block_items: stmt
+block_items:
 block_items: stmt block_items
 control: "if" "(" assign ")" stmt
 control: "while" "(" assign ")" stmt
@@ -45,7 +45,7 @@ stmt: "{" block_items "}"
 stmt: control
 stmt: assign ";"
 stmt: return assign ";"
-block_items: stmt
+block_items:
 block_items: stmt block_items
 control: "if" "(" assign ")" stmt
 control: "while" "(" assign ")" stmt
