@@ -32,11 +32,11 @@ term: func_call
 term: num
 term: ident
 term: "(" assign ")"
-func_call: ident "(" args ")"
-args:
-args: assign arglist
-arglist:
-arglist: "," assign arglist
+func_call: ident "(" func_call_args ")"
+func_call_args:
+func_call_args: assign func_call_arglist
+func_call_arglist:
+func_call_arglist: "," assign func_call_arglist
 
 
 program:
@@ -76,8 +76,8 @@ term: func_call
 term: num
 term: ident
 term: "(" assign ")"
-func_call: ident "(" args ")"
-args:
-args: assign arglist
-arglist:
-arglist: "," assign arglist
+func_call: ident "(" func_call_args ")"
+func_call_args:
+func_call_args: assign func_call_arglist
+func_call_arglist:
+func_call_arglist: "," assign func_call_arglist
