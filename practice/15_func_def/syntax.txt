@@ -1,10 +1,16 @@
 program:
-program: stmt program
-stmt: "{" block_items "}"
+program: func_def program
+func_def: ident "(" func_def_args ")" block
+func_def_args:
+func_def_args: var func_def_arglist
+func_def_arglist:
+func_def_arglist: "," var func_def_arglist
+stmt: block
 stmt: control
 stmt: assign ";"
 stmt: return assign ";"
-block_items: stmt
+block: "{" block_items "}"
+block_items:
 block_items: stmt block_items
 control: "if" "(" assign ")" stmt
 control: "while" "(" assign ")" stmt
@@ -30,22 +36,29 @@ unary: "+" term
 unary: term
 term: func_call
 term: num
-term: ident
+term: var
 term: "(" assign ")"
 func_call: ident "(" func_call_args ")"
 func_call_args:
 func_call_args: assign func_call_arglist
 func_call_arglist:
 func_call_arglist: "," assign func_call_arglist
+var: ident
 
 
 program:
-program: stmt program
-stmt: "{" block_items "}"
+program: func_def program
+func_def: ident "(" func_def_args ")" block
+func_def_args:
+func_def_args: var func_def_arglist
+func_def_arglist:
+func_def_arglist: "," var func_def_arglist
+stmt: block
 stmt: control
 stmt: assign ";"
 stmt: return assign ";"
-block_items: stmt
+block: "{" block_items "}"
+block_items:
 block_items: stmt block_items
 control: "if" "(" assign ")" stmt
 control: "while" "(" assign ")" stmt
@@ -74,10 +87,11 @@ unary: "+" term
 unary: term
 term: func_call
 term: num
-term: ident
+term: var
 term: "(" assign ")"
 func_call: ident "(" func_call_args ")"
 func_call_args:
 func_call_args: assign func_call_arglist
 func_call_arglist:
 func_call_arglist: "," assign func_call_arglist
+var: ident

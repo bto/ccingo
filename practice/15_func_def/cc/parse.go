@@ -15,6 +15,7 @@ const (
 	ND_WHILE
 	ND_BLOCK
 	ND_FUNC_CALL
+	ND_FUNC_DEF
 )
 
 type node struct {
@@ -36,7 +37,60 @@ func (tks *tokens) Parse() nodes {
 
 func (tks *tokens) program() (nds nodes) {
 	for tks.current().ty != TK_EOF {
-		nds = append(nds, *tks.stmt())
+		nds = append(nds, *tks.funcDef())
+	}
+	return
+}
+
+func (tks *tokens) funcDef() *node {
+	if !tks.consume(TK_IDENT) {
+		log.Fatal("関数定義ではありません: ", string(tks.current().input))
+	}
+	if !tks.consume('(') {
+		log.Fatal("関数定義の開きカッコではありません: ", string(tks.current().input))
+	}
+	nds := tks.funcDefArgs()
+	if !tks.consume(')') {
+		log.Fatal("関数定義の閉じカッコではありません: ", string(tks.current().input))
+	}
+	nd := tks.block()
+
+	return &node{
+		ty:  ND_BLOCK,
+		nds: append(nds, *nd),
+	}
+}
+
+func (tks *tokens) funcDefArgs() (nds nodes) {
+	switch tk := tks.current(); tk.ty {
+	case ')':
+		return
+	case TK_IDENT:
+		nd := node{
+			ty:   ND_VAR,
+			name: string(tk.input),
+		}
+		nds = append(nds, nd)
+		tks.next()
+	default:
+		log.Fatal("関数定義の変数ではありません: ", string(tk.input))
+	}
+
+	for tks.current().ty != ')' {
+		if !tks.consume(',') {
+			break
+		}
+
+		tk := tks.current()
+		if tk.ty != TK_IDENT {
+			log.Fatal("関数定義の変数ではありません: ", string(tk.input))
+		}
+		nd := node{
+			ty:   ND_VAR,
+			name: string(tk.input),
+		}
+		nds = append(nds, nd)
+		tks.next()
 	}
 	return
 }
@@ -57,21 +111,27 @@ func (tks *tokens) stmt() *node {
 	case TK_IF, TK_WHILE, TK_FOR:
 		return tks.control()
 	case '{':
-		tks.next()
-		nds := tks.blockItems()
-		if !tks.consume('}') {
-			log.Fatal("ブロックの閉じカッコがありません: ", string(tks.current().input))
-		}
-		return &node{
-			ty:  ND_BLOCK,
-			nds: nds,
-		}
+		return tks.block()
 	default:
 		nd := tks.assign()
 		if !tks.consume(';') {
 			log.Fatal("';'ではないトークンです: ", string(tks.current().input))
 		}
 		return nd
+	}
+}
+
+func (tks *tokens) block() *node {
+	if !tks.consume('{') {
+		log.Fatal("ブロックの開きカッコがありません: ", string(tks.current().input))
+	}
+	nds := tks.blockItems()
+	if !tks.consume('}') {
+		log.Fatal("ブロックの閉じカッコがありません: ", string(tks.current().input))
+	}
+	return &node{
+		ty:  ND_BLOCK,
+		nds: nds,
 	}
 }
 
@@ -339,7 +399,7 @@ func (tks *tokens) term() (nd *node) {
 }
 
 func (tks *tokens) funcCall(name string) *node {
-	nds := tks.args()
+	nds := tks.funcCallArgs()
 	if !tks.consume(')') {
 		log.Fatal("関数の閉じカッコがありません: ", string(tks.current().input))
 	}
@@ -350,7 +410,7 @@ func (tks *tokens) funcCall(name string) *node {
 	}
 }
 
-func (tks *tokens) args() (nds nodes) {
+func (tks *tokens) funcCallArgs() (nds nodes) {
 	if tks.current().ty == ')' {
 		return
 	}
