@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"os"
 
-	"github.com/bto/ccingo/practice/09_return/cc"
+	"github.com/bto/ccingo/practice/12_ctrl/02_while/cc"
 )
 
 func main() {
