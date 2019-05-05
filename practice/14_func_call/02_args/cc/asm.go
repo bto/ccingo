@@ -118,7 +118,7 @@ func (nd *node) genFuncCallArgs(vars *variables, lb *label) {
 	fmt.Println("  mov rdi, [rax]")
 
 	if len(nd.nds) < 2 {
-		fmt.Println("  sub rsp, 8")
+		fmt.Println("  add rsp, 8")
 		return
 	}
 	fmt.Println("  mov rax, rsp")
@@ -127,7 +127,7 @@ func (nd *node) genFuncCallArgs(vars *variables, lb *label) {
 	fmt.Println("  mov rsi, [rax]")
 
 	if len(nd.nds) < 3 {
-		fmt.Println("  sub rsp, 16")
+		fmt.Println("  add rsp, 16")
 		return
 	}
 	fmt.Println("  mov rax, rsp")
@@ -136,7 +136,7 @@ func (nd *node) genFuncCallArgs(vars *variables, lb *label) {
 	fmt.Println("  mov rdx, [rax]")
 
 	if len(nd.nds) < 4 {
-		fmt.Println("  sub rsp, 24")
+		fmt.Println("  add rsp, 24")
 		return
 	}
 	fmt.Println("  mov rax, rsp")
@@ -145,7 +145,7 @@ func (nd *node) genFuncCallArgs(vars *variables, lb *label) {
 	fmt.Println("  mov rcx, [rax]")
 
 	if len(nd.nds) < 5 {
-		fmt.Println("  sub rsp, 32")
+		fmt.Println("  add rsp, 32")
 		return
 	}
 	fmt.Println("  mov rax, rsp")
@@ -154,7 +154,7 @@ func (nd *node) genFuncCallArgs(vars *variables, lb *label) {
 	fmt.Println("  mov r8, [rax]")
 
 	if len(nd.nds) < 6 {
-		fmt.Println("  sub rsp, 40")
+		fmt.Println("  add rsp, 40")
 		return
 	}
 	fmt.Println("  mov rax, rsp")
@@ -162,7 +162,7 @@ func (nd *node) genFuncCallArgs(vars *variables, lb *label) {
 	fmt.Println("  add rax,", offset)
 	fmt.Println("  mov r9, [rax]")
 
-	fmt.Println("  sub rsp, 48")
+	fmt.Println("  add rsp, 48")
 }
 
 func (nd *node) genAssign(vars *variables, lb *label) {
