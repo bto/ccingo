@@ -261,9 +261,9 @@ func TestParseVar(t *testing.T) {
 	tks.append(token{ty: TK_IDENT, input: []byte("a")})
 	tks.append(token{ty: ';'}).append(token{ty: TK_EOF})
 	var nds nodes
-    for tks.current().ty != TK_EOF {
-        nds = append(nds, *tks.stmt())
-    }
+	for tks.current().ty != TK_EOF {
+		nds = append(nds, *tks.stmt())
+	}
 
 	nd := nds[0]
 	if !nd.checkOp('=') {

@@ -8,22 +8,12 @@ import (
 func (nds nodes) PrintAsm() {
 	fmt.Println(".intel_syntax noprefix")
 	fmt.Println(".global main")
-	fmt.Println("main:")
-
-	fmt.Println("  push rbp")
-	fmt.Println("  mov rbp, rsp")
-	fmt.Println("  sub rsp, 208")
 
 	vars := newVariables()
 	lb := newLabel()
 	for _, nd := range nds {
 		nd.gen(vars, lb)
-		fmt.Println("  pop rax")
 	}
-
-	fmt.Println("  mov rsp, rbp")
-	fmt.Println("  pop rbp")
-	fmt.Println("  ret")
 }
 
 func (nd *node) gen(vars *variables, lb *label) {
@@ -42,6 +32,8 @@ func (nd *node) gen(vars *variables, lb *label) {
 		nd.genBlock(vars, lb)
 	case ND_FUNC_CALL:
 		nd.genFuncCall(vars, lb)
+	case ND_FUNC_DEF:
+		nd.genFuncDef(vars, lb)
 	case int('='):
 		nd.genAssign(vars, lb)
 	default:
@@ -163,6 +155,19 @@ func (nd *node) genFuncCallArgs(vars *variables, lb *label) {
 	fmt.Println("  mov r9, [rax]")
 
 	fmt.Println("  sub rsp, 48")
+}
+
+func (nd *node) genFuncDef(vars *variables, lb *label) {
+	fmt.Printf("%s:\n", nd.name)
+	fmt.Println("  push rbp")
+	fmt.Println("  mov rbp, rsp")
+	fmt.Println("  sub rsp, 208")
+
+	nd.lhs.gen(vars, lb)
+
+	fmt.Println("  mov rsp, rbp")
+	fmt.Println("  pop rbp")
+	fmt.Println("  ret")
 }
 
 func (nd *node) genAssign(vars *variables, lb *label) {

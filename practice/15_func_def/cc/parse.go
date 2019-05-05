@@ -43,21 +43,30 @@ func (tks *tokens) program() (nds nodes) {
 }
 
 func (tks *tokens) funcDef() *node {
-	if !tks.consume(TK_IDENT) {
-		log.Fatal("関数定義ではありません: ", string(tks.current().input))
+	tk := tks.current()
+	if tk.ty != TK_IDENT {
+		log.Fatal("関数定義ではありません: ", string(tk.input))
 	}
+	name := string(tk.input)
+	tks.next()
+
 	if !tks.consume('(') {
 		log.Fatal("関数定義の開きカッコではありません: ", string(tks.current().input))
 	}
+
 	nds := tks.funcDefArgs()
+
 	if !tks.consume(')') {
 		log.Fatal("関数定義の閉じカッコではありません: ", string(tks.current().input))
 	}
+
 	nd := tks.block()
 
 	return &node{
-		ty:  ND_BLOCK,
-		nds: append(nds, *nd),
+		ty:   ND_FUNC_DEF,
+		name: name,
+		nds:  nds,
+		lhs:  nd,
 	}
 }
 
