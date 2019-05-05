@@ -154,7 +154,7 @@ func (nd *node) genFuncCallArgs(vars *variables, lb *label) {
 	fmt.Println("  add rax,", offset)
 	fmt.Println("  mov r9, [rax]")
 
-	fmt.Println("  sub add, 48")
+	fmt.Println("  add rsp, 48")
 }
 
 func (nd *node) genFuncDef(vars *variables, lb *label) {
