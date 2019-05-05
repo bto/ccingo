@@ -9,9 +9,9 @@ func (nds nodes) PrintAsm() {
 	fmt.Println(".intel_syntax noprefix")
 	fmt.Println(".global main")
 
-	vars := newVariables()
 	lb := newLabel()
 	for _, nd := range nds {
+		vars := newVariables()
 		nd.gen(vars, lb)
 	}
 }
@@ -163,11 +163,62 @@ func (nd *node) genFuncDef(vars *variables, lb *label) {
 	fmt.Println("  mov rbp, rsp")
 	fmt.Println("  sub rsp, 208")
 
+	nd.genFuncDefArgs(vars, lb)
 	nd.lhs.gen(vars, lb)
 
 	fmt.Println("  mov rsp, rbp")
 	fmt.Println("  pop rbp")
 	fmt.Println("  ret")
+}
+
+func (nd *node) genFuncDefArgs(vars *variables, lb *label) {
+	if len(nd.nds) < 1 {
+		return
+	}
+	v := vars.add(nd.nds[0].name)
+	fmt.Println("  mov rax, rbp")
+	fmt.Println("  sub rax,", v.offset)
+	fmt.Println("  mov [rax], rdi")
+
+	if len(nd.nds) < 2 {
+		return
+	}
+	v = vars.add(nd.nds[1].name)
+	fmt.Println("  mov rax, rbp")
+	fmt.Println("  sub rax,", v.offset)
+	fmt.Println("  mov [rax], rsi")
+
+	if len(nd.nds) < 3 {
+		return
+	}
+	v = vars.add(nd.nds[2].name)
+	fmt.Println("  mov rax, rbp")
+	fmt.Println("  sub rax,", v.offset)
+	fmt.Println("  mov [rax], rdx")
+
+	if len(nd.nds) < 4 {
+		return
+	}
+	v = vars.add(nd.nds[3].name)
+	fmt.Println("  mov rax, rbp")
+	fmt.Println("  sub rax,", v.offset)
+	fmt.Println("  mov [rax], rcx")
+
+	if len(nd.nds) < 5 {
+		return
+	}
+	v = vars.add(nd.nds[4].name)
+	fmt.Println("  mov rax, rbp")
+	fmt.Println("  sub rax,", v.offset)
+	fmt.Println("  mov [rax], r8")
+
+	if len(nd.nds) < 6 {
+		return
+	}
+	v = vars.add(nd.nds[5].name)
+	fmt.Println("  mov rax, rbp")
+	fmt.Println("  sub rax,", v.offset)
+	fmt.Println("  mov [rax], r9")
 }
 
 func (nd *node) genAssign(vars *variables, lb *label) {
