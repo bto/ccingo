@@ -9,3 +9,4 @@ int add6(int, int, int, int, int, int);
 int add7(int, int, int, int, int, int, int);
 int add8(int, int, int, int, int, int, int, int);
 int add9(int, int, int, int, int, int, int, int, int);
+int fib(int);
