@@ -17,6 +17,10 @@ clean:
 format:
 	@find -name '*.go' | xargs -n 1 go fmt
 
+.PHONY: tags
+tags:
+	gotags -R main.go cc > tags
+
 .PHONY: test
 test: test-go
 	@find $(PRACTICE_DIR) -name test.sh | sort | while read f; do \
