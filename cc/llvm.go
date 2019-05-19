@@ -29,10 +29,12 @@ func (nds nodes) PrintLlvm() {
 
 	for _, nd := range nds {
 		v = nd.gen(cn)
+		if v == nil {
+			continue
+		}
 		if v.Type() != types.I64 {
 			v = cn.bl.NewZExt(v, types.I64)
 		}
-
 		if nd.ty == ND_RETURN {
 			break
 		}
@@ -87,6 +89,7 @@ func (nd *node) genIf(cn *context) value.Value {
 	if cond.Type() != types.I1 {
 		cond = cn.bl.NewICmp(enum.IPredNE, cond, constant.NewInt(types.I64, 0))
 	}
+	cn.bl.NewCondBr(cond, blThen, blElse)
 
 	cnThen := &context{
 		fn: cn.fn,
@@ -98,11 +101,8 @@ func (nd *node) genIf(cn *context) value.Value {
 
 	blElse.NewBr(blEnd)
 
-	cn.bl.NewCondBr(cond, blThen, blElse)
-
 	cn.bl = blEnd
-
-	return constant.NewInt(types.I64, 1)
+	return nil
 }
 
 func (nd *node) genWhile(cn *context) value.Value {
@@ -132,8 +132,7 @@ func (nd *node) genWhile(cn *context) value.Value {
 	blBegin.NewBr(blCond)
 
 	cn.bl = blEnd
-
-	return constant.NewInt(types.I64, 1)
+	return nil
 }
 
 func (nd *node) genAssign(cn *context) value.Value {
