@@ -62,6 +62,8 @@ func (nd *node) gen(block *ir.Block, vars map[string]*ir.InstAlloca) value.Value
 		return nd.genNum()
 	case ND_VAR:
 		return nd.genVar(block, vars)
+	case ND_RETURN:
+		return nd.genReturn(block, vars)
 	case int('='):
 		return nd.genAssign(block, vars)
 	default:
@@ -76,6 +78,10 @@ func (nd *node) genNum() *constant.Int {
 func (nd *node) genVar(block *ir.Block, vars map[string]*ir.InstAlloca) value.Value {
 	r := nd.genLval(vars)
 	return block.NewLoad(r)
+}
+
+func (nd *node) genReturn(block *ir.Block, vars map[string]*ir.InstAlloca) value.Value {
+	return nd.lhs.gen(block, vars)
 }
 
 func (nd *node) genAssign(block *ir.Block, vars map[string]*ir.InstAlloca) value.Value {

@@ -10,6 +10,7 @@ const (
 	ND_NE
 	ND_LE
 	ND_VAR
+	ND_RETURN
 )
 
 type node struct {
@@ -36,7 +37,16 @@ func (tks *tokens) program() (nds nodes) {
 }
 
 func (tks *tokens) stmt() (nd *node) {
-	nd = tks.assign()
+	if tks.consume(TK_RETURN) {
+		ndAssign := tks.assign()
+		nd = &node{
+			ty:  ND_RETURN,
+			lhs: ndAssign,
+		}
+	} else {
+		nd = tks.assign()
+	}
+
 	if !tks.consume(';') {
 		log.Fatal("';'ではないトークンです: ", string(tks.current().input))
 	}
