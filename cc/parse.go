@@ -50,30 +50,50 @@ func (tks *tokens) addx(nd *node) *node {
 }
 
 func (tks *tokens) mul() *node {
-	nd := tks.term()
+	nd := tks.unary()
 	return tks.mulx(nd)
 }
 
 func (tks *tokens) mulx(nd *node) *node {
 	switch {
 	case tks.consume('*'):
-		ndTerm := tks.term()
+		ndUnary := tks.unary()
 		nd = &node{
 			ty:  '*',
 			lhs: nd,
-			rhs: ndTerm,
+			rhs: ndUnary,
 		}
 		return tks.mulx(nd)
 	case tks.consume('/'):
-		ndTerm := tks.term()
+		ndUnary := tks.unary()
 		nd = &node{
 			ty:  '/',
 			lhs: nd,
-			rhs: ndTerm,
+			rhs: ndUnary,
 		}
 		return tks.mulx(nd)
 	default:
 		return nd
+	}
+}
+
+func (tks *tokens) unary() (nd *node) {
+	switch {
+	case tks.consume('+'):
+		return tks.term()
+	case tks.consume('-'):
+		ndZero := &node{
+			ty:  ND_NUM,
+			val: 0,
+		}
+		ndTerm := tks.term()
+		return &node{
+			ty:  '-',
+			lhs: ndZero,
+			rhs: ndTerm,
+		}
+	default:
+		return tks.term()
 	}
 }
 
