@@ -13,12 +13,14 @@ const (
 	ND_RETURN
 	ND_IF
 	ND_WHILE
+	ND_BLOCK
 )
 
 type node struct {
 	ty, val  int
 	name     string
 	lhs, rhs *node
+	nds      nodes
 }
 
 type nodes []node
@@ -53,6 +55,16 @@ func (tks *tokens) stmt() *node {
 		}
 	case TK_IF, TK_WHILE, TK_FOR:
 		return tks.control()
+	case '{':
+		tks.next()
+		nds := tks.blockItems()
+		if !tks.consume('}') {
+			log.Fatal("ブロックの閉じカッコがありません: ", string(tks.current().input))
+		}
+		return &node{
+			ty:  ND_BLOCK,
+			nds: nds,
+		}
 	default:
 		nd := tks.assign()
 		if !tks.consume(';') {
@@ -60,6 +72,13 @@ func (tks *tokens) stmt() *node {
 		}
 		return nd
 	}
+}
+
+func (tks *tokens) blockItems() (nds nodes) {
+	for tks.current().ty != '}' {
+		nds = append(nds, *tks.stmt())
+	}
+	return
 }
 
 func (tks *tokens) control() *node {

@@ -477,6 +477,51 @@ func TestParseFor(t *testing.T) {
 	}
 }
 
+func TestParseBlock(t *testing.T) {
+	// {if(1){2;}return 3;{}}
+	tks := &tokens{}
+	tks.append(token{ty: '{'})
+	tks.append(token{ty: TK_IF})
+	tks.append(token{ty: '('})
+	tks.append(token{ty: TK_NUM, val: 1})
+	tks.append(token{ty: ')'})
+	tks.append(token{ty: '{'})
+	tks.append(token{ty: TK_NUM, val: 2})
+	tks.append(token{ty: ';'})
+	tks.append(token{ty: '}'})
+	tks.append(token{ty: TK_RETURN})
+	tks.append(token{ty: TK_NUM, val: 3})
+	tks.append(token{ty: ';'})
+	tks.append(token{ty: '{'})
+	tks.append(token{ty: '}'})
+	tks.append(token{ty: '}'})
+	tks.append(token{ty: TK_EOF})
+	nd := tks.Parse()[0]
+	if !nd.checkBlock(3) {
+		t.Fatal("invalid node:", nd)
+	}
+	nd0 := nd.nds[0]
+	if !nd0.checkOp(ND_IF) {
+		t.Fatal("invalid node:", nd0)
+	}
+	nd0r := nd0.rhs
+	if !nd0r.checkBlock(1) {
+		t.Fatal("invalid node:", nd0r)
+	}
+	nd1 := nd.nds[1]
+	if !nd1.checkUnary(ND_RETURN) {
+		t.Fatal("invalid node:", nd1)
+	}
+	nd2 := nd.nds[2]
+	if !nd2.checkBlock(0) {
+		t.Fatal("invalid node:", nd2)
+	}
+}
+
+func (nd *node) checkBlock(n int) bool {
+	return nd.ty == ND_BLOCK && len(nd.nds) == n && nd.lhs == nil && nd.rhs == nil
+}
+
 func (nd *node) checkNum(val int) bool {
 	return nd.ty == ND_NUM && nd.val == val && nd.lhs == nil && nd.rhs == nil
 }

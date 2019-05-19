@@ -56,6 +56,8 @@ func (nd *node) gen(cn *context) value.Value {
 		return nd.genIf(cn)
 	case ND_WHILE:
 		return nd.genWhile(cn)
+	case ND_BLOCK:
+		return nd.genBlock(cn)
 	case int('='):
 		return nd.genAssign(cn)
 	case 0:
@@ -134,6 +136,13 @@ func (nd *node) genWhile(cn *context) value.Value {
 	blBegin.NewBr(blCond)
 
 	cn.bl = blEnd
+	return nil
+}
+
+func (nd *node) genBlock(cn *context) value.Value {
+	for _, nd1 := range nd.nds {
+		nd1.gen(cn)
+	}
 	return nil
 }
 

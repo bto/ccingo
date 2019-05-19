@@ -184,6 +184,23 @@ func TestTokenizeIdent(t *testing.T) {
 	}
 }
 
+func TestTokenizeBlock(t *testing.T) {
+	rd := newReader("{}")
+	tks := Tokenize(rd)
+	if len(tks.tks) != 3 {
+		t.Fatal("invalid number of tokens:", len(tks.tks))
+	}
+	if tk := tks.current(); !tk.checkChar('{') {
+		t.Fatal("invalid token:", tk)
+	}
+	if tk := tks.next(); !tk.checkChar('}') {
+		t.Fatal("invalid token:", tk)
+	}
+	if tk := tks.next(); tk.ty != TK_EOF {
+		t.Fatal("invalid token:", tk)
+	}
+}
+
 func TestTokenizeAlNum(t *testing.T) {
 	rd := newReader("")
 	name, c, err := tokenizeAlNum(rd, 'a')
