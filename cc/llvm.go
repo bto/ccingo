@@ -40,7 +40,6 @@ func (nds nodes) PrintLlvm() {
 		}
 	}
 
-	cn.bl.NewRet(v)
 	fmt.Println(cn.mod)
 }
 
@@ -182,9 +181,12 @@ func (nd *node) genFuncDef(cn *context) value.Value {
 	cn.fn = cn.mod.NewFunc(nd.name, types.I64, params...)
 
 	cn.fns[nd.name] = cn.fn
-	cn.bl = cn.fn.NewBlock("")
+	cn.bl = cn.fn.NewBlock(nd.name)
 
-	return nd.lhs.gen(cn)
+	v := nd.lhs.gen(cn)
+	cn.bl.NewRet(v)
+
+	return nil
 }
 
 func (nd *node) genAssign(cn *context) value.Value {
