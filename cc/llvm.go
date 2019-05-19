@@ -11,24 +11,61 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (nd *node) PrintLlvm() {
+func (nds nodes) PrintLlvm() {
+	var v value.Value
+
 	m := ir.NewModule()
 	block := m.NewFunc("main", types.I64).NewBlock("")
 
-	v := nd.gen(block)
-	if v.Type() != types.I64 {
-		v = block.NewZExt(v, types.I64)
-	}
-	block.NewRet(v)
+	vars := make(map[string]*ir.InstAlloca)
+	vars["a"] = block.NewAlloca(types.I64)
+	vars["b"] = block.NewAlloca(types.I64)
+	vars["c"] = block.NewAlloca(types.I64)
+	vars["d"] = block.NewAlloca(types.I64)
+	vars["e"] = block.NewAlloca(types.I64)
+	vars["f"] = block.NewAlloca(types.I64)
+	vars["g"] = block.NewAlloca(types.I64)
+	vars["h"] = block.NewAlloca(types.I64)
+	vars["i"] = block.NewAlloca(types.I64)
+	vars["j"] = block.NewAlloca(types.I64)
+	vars["k"] = block.NewAlloca(types.I64)
+	vars["l"] = block.NewAlloca(types.I64)
+	vars["m"] = block.NewAlloca(types.I64)
+	vars["n"] = block.NewAlloca(types.I64)
+	vars["o"] = block.NewAlloca(types.I64)
+	vars["p"] = block.NewAlloca(types.I64)
+	vars["q"] = block.NewAlloca(types.I64)
+	vars["r"] = block.NewAlloca(types.I64)
+	vars["s"] = block.NewAlloca(types.I64)
+	vars["t"] = block.NewAlloca(types.I64)
+	vars["u"] = block.NewAlloca(types.I64)
+	vars["v"] = block.NewAlloca(types.I64)
+	vars["w"] = block.NewAlloca(types.I64)
+	vars["x"] = block.NewAlloca(types.I64)
+	vars["y"] = block.NewAlloca(types.I64)
+	vars["z"] = block.NewAlloca(types.I64)
 
+	for _, nd := range nds {
+		v = nd.gen(block, vars)
+		if v.Type() != types.I64 {
+			v = block.NewZExt(v, types.I64)
+		}
+	}
+
+	block.NewRet(v)
 	fmt.Println(m)
 }
 
-func (nd *node) gen(block *ir.Block) value.Value {
-	if nd.ty == ND_NUM {
+func (nd *node) gen(block *ir.Block, vars map[string]*ir.InstAlloca) value.Value {
+	switch nd.ty {
+	case ND_NUM:
 		return nd.genNum()
-	} else {
-		return nd.genOp(block)
+	case ND_VAR:
+		return nd.genVar(block, vars)
+	case int('='):
+		return nd.genAssign(block, vars)
+	default:
+		return nd.genOp(block, vars)
 	}
 }
 
@@ -36,13 +73,30 @@ func (nd *node) genNum() *constant.Int {
 	return constant.NewInt(types.I64, int64(nd.val))
 }
 
-func (nd *node) genOp(block *ir.Block) value.Value {
-	v1 := nd.lhs.gen(block)
+func (nd *node) genVar(block *ir.Block, vars map[string]*ir.InstAlloca) value.Value {
+	r := nd.genLval(vars)
+	return block.NewLoad(r)
+}
+
+func (nd *node) genAssign(block *ir.Block, vars map[string]*ir.InstAlloca) value.Value {
+	r := nd.lhs.genLval(vars)
+
+	v := nd.rhs.gen(block, vars)
+	if v.Type() != types.I64 {
+		v = block.NewZExt(v, types.I64)
+	}
+
+	block.NewStore(v, r)
+	return v
+}
+
+func (nd *node) genOp(block *ir.Block, vars map[string]*ir.InstAlloca) value.Value {
+	v1 := nd.lhs.gen(block, vars)
 	if v1.Type() != types.I64 {
 		v1 = block.NewZExt(v1, types.I64)
 	}
 
-	v2 := nd.rhs.gen(block)
+	v2 := nd.rhs.gen(block, vars)
 	if v2.Type() != types.I64 {
 		v2 = block.NewZExt(v2, types.I64)
 	}
@@ -68,4 +122,12 @@ func (nd *node) genOp(block *ir.Block) value.Value {
 
 	log.Fatal("invalid node: ", nd)
 	return nil
+}
+
+func (nd *node) genLval(vars map[string]*ir.InstAlloca) *ir.InstAlloca {
+	if nd.ty != ND_VAR {
+		log.Fatal("left hand value is not a variable")
+	}
+
+	return vars[nd.name]
 }

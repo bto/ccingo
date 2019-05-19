@@ -1,3 +1,8 @@
+program:
+program: stmt program
+stmt: assign ";"
+assign: equality
+assign: equality "=" assign
 equality: relational
 equality: equality "==" relational
 equality: equality "!=" relational
@@ -16,9 +21,15 @@ unary: "+" term
 unary: "+" term
 unary: term
 term: num
-term: "(" equality ")"
+term: ident
+term: "(" assign ")"
 
 
+program:
+program: stmt program
+stmt: assign ";"
+assign: equality
+assign: equality "=" assign
 equality: relational equalityx
 equalityx:
 equalityx: "==" relational equalityx
@@ -40,4 +51,5 @@ unary: "+" term
 unary: "+" term
 unary: term
 term: num
-term: "(" equality ")"
+term: ident
+term: "(" assign ")"

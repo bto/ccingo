@@ -13,6 +13,7 @@ const (
 	TK_NE
 	TK_LE
 	TK_GE
+	TK_IDENT
 	TK_EOF
 )
 
@@ -44,17 +45,21 @@ func Tokenize(rd *bufio.Reader) (tks *tokens) {
 			continue
 		case byte('='):
 			c, err = rd.ReadByte()
-			if c != byte('=') {
-				log.Fatal("トークナイズできません: ", string([]byte{'=', c}))
-			}
+			if c == byte('=') {
+				tk := token{
+					ty:    TK_EQ,
+					input: []byte{'=', c},
+				}
+				tks.append(tk)
 
-			tk := token{
-				ty:    TK_EQ,
-				input: []byte{'=', c},
+				c, err = rd.ReadByte()
+			} else {
+				tk := token{
+					ty:    int('='),
+					input: []byte{'='},
+				}
+				tks.append(tk)
 			}
-			tks.append(tk)
-
-			c, err = rd.ReadByte()
 			continue
 		case byte('!'):
 			c, err = rd.ReadByte()
@@ -106,7 +111,7 @@ func Tokenize(rd *bufio.Reader) (tks *tokens) {
 				tks.append(tk)
 			}
 			continue
-		case byte('+'), byte('-'), byte('*'), byte('/'), byte('('), byte(')'):
+		case byte('+'), byte('-'), byte('*'), byte('/'), byte('('), byte(')'), byte(';'):
 			tk := token{
 				ty:    int(c),
 				input: []byte{c},
@@ -120,6 +125,17 @@ func Tokenize(rd *bufio.Reader) (tks *tokens) {
 		if byte('0') <= c && c <= byte('9') {
 			tk, c, err = tokenizeNum(rd, c)
 			tks.append(tk)
+			continue
+		}
+
+		if byte('a') <= c && c <= byte('z') {
+			tk := token{
+				ty:    TK_IDENT,
+				input: []byte{c},
+			}
+			tks.append(tk)
+
+			c, err = rd.ReadByte()
 			continue
 		}
 

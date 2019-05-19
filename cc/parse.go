@@ -9,19 +9,53 @@ const (
 	ND_EQ
 	ND_NE
 	ND_LE
+	ND_VAR
 )
 
 type node struct {
 	ty, val  int
+	name     string
 	lhs, rhs *node
 }
 
-func (tks *tokens) Parse() *node {
-	nd := tks.equality()
+type nodes []node
+
+func (tks *tokens) Parse() nodes {
+	nds := tks.program()
 	if !tks.consume(TK_EOF) {
 		log.Fatal("不正なトークンです: ", string(tks.current().input))
 	}
-	return nd
+	return nds
+}
+
+func (tks *tokens) program() (nds nodes) {
+	for tks.current().ty != TK_EOF {
+		nds = append(nds, *tks.stmt())
+	}
+	return
+}
+
+func (tks *tokens) stmt() (nd *node) {
+	nd = tks.assign()
+	if !tks.consume(';') {
+		log.Fatal("';'ではないトークンです: ", string(tks.current().input))
+	}
+	return
+}
+
+func (tks *tokens) assign() *node {
+	nd := tks.equality()
+
+	if !tks.consume('=') {
+		return nd
+	}
+
+	ndEq := tks.assign()
+	return &node{
+		ty:  '=',
+		lhs: nd,
+		rhs: ndEq,
+	}
 }
 
 func (tks *tokens) equality() *node {
@@ -172,17 +206,24 @@ func (tks *tokens) unary() (nd *node) {
 	}
 }
 
-func (tks *tokens) term() *node {
+func (tks *tokens) term() (nd *node) {
+	tk := tks.current()
+
 	switch {
 	case tks.consume('('):
-		nd := tks.equality()
+		nd = tks.assign()
 		if !tks.consume(')') {
 			log.Fatal("閉じカッコがありません: ", string(tks.current().input))
 		}
-		return nd
-	default:
+		return
+	case tk.ty == TK_NUM:
 		return tks.num()
+	case tk.ty == TK_IDENT:
+		return tks.ident()
 	}
+
+	log.Fatal("不正なトークンです: ", string(tk.input))
+	return
 }
 
 func (tks *tokens) num() *node {
@@ -195,6 +236,19 @@ func (tks *tokens) num() *node {
 	return &node{
 		ty:  ND_NUM,
 		val: tk.val,
+	}
+}
+
+func (tks *tokens) ident() *node {
+	tk := tks.current()
+	if tk.ty != TK_IDENT {
+		log.Fatal("変数ではないトークンです: ", string(tk.input))
+	}
+
+	tks.next()
+	return &node{
+		ty:   ND_VAR,
+		name: string(tk.input),
 	}
 }
 
