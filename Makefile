@@ -4,6 +4,10 @@ BUILD_DIR = $(TOP_DIR)/build
 .PHONY: all
 all: tags format test
 
+.PHONY: clean
+clean:
+	rm -rf $(BUILD_DIR)/*
+
 .PHONY: format
 format:
 	@go fmt *.go
@@ -16,6 +20,7 @@ tags:
 .PHONY: test
 test:
 	@go test ./cc
+	$(TOP_DIR)/test.sh
 
 
 PRACTICE_DIR = $(TOP_DIR)/practice
