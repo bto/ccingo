@@ -22,14 +22,10 @@ type context struct {
 func (nds nodes) PrintLlvm() {
 	var v value.Value
 	cn := &context{
+		mod:  ir.NewModule(),
 		fns:  make(map[string]*ir.Func),
 		vars: make(map[string]*ir.InstAlloca),
 	}
-
-	cn.mod = ir.NewModule()
-	cn.fn = cn.mod.NewFunc("main", types.I64)
-	cn.fns["main"] = cn.fn
-	cn.bl = cn.fn.NewBlock("")
 
 	for _, nd := range nds {
 		v = nd.gen(cn)
@@ -64,6 +60,8 @@ func (nd *node) gen(cn *context) value.Value {
 		return nd.genBlock(cn)
 	case ND_FUNC_CALL:
 		return nd.genFuncCall(cn)
+	case ND_FUNC_DEF:
+		return nd.genFuncDef(cn)
 	case int('='):
 		return nd.genAssign(cn)
 	case 0:
@@ -146,10 +144,14 @@ func (nd *node) genWhile(cn *context) value.Value {
 }
 
 func (nd *node) genBlock(cn *context) value.Value {
+	var v value.Value
 	for _, nd1 := range nd.nds {
-		nd1.gen(cn)
+		v = nd1.gen(cn)
+		if nd1.ty == ND_RETURN {
+			break
+		}
 	}
-	return nil
+	return v
 }
 
 func (nd *node) genFuncCall(cn *context) value.Value {
@@ -169,6 +171,20 @@ func (nd *node) genFuncCall(cn *context) value.Value {
 		args = append(args, nd.nds[i].gen(cn))
 	}
 	return cn.bl.NewCall(cn.fns[nd.name], args...)
+}
+
+func (nd *node) genFuncDef(cn *context) value.Value {
+	params := []*ir.Param{}
+	for i := 0; i < len(nd.nds); i++ {
+		name := fmt.Sprintf("a%d", i)
+		params = append(params, ir.NewParam(name, types.I64))
+	}
+	cn.fn = cn.mod.NewFunc(nd.name, types.I64, params...)
+
+	cn.fns[nd.name] = cn.fn
+	cn.bl = cn.fn.NewBlock("")
+
+	return nd.lhs.gen(cn)
 }
 
 func (nd *node) genAssign(cn *context) value.Value {
