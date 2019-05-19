@@ -155,10 +155,20 @@ func (nd *node) genBlock(cn *context) value.Value {
 func (nd *node) genFuncCall(cn *context) value.Value {
 	_, ok := cn.fns[nd.name]
 	if !ok {
-		cn.fns[nd.name] = cn.mod.NewFunc(nd.name, types.I64)
+		params := []*ir.Param{}
+		for i := 0; i < len(nd.nds); i++ {
+			name := fmt.Sprintf("a%d", i)
+			params = append(params, ir.NewParam(name, types.I64))
+		}
+
+		cn.fns[nd.name] = cn.mod.NewFunc(nd.name, types.I64, params...)
 	}
 
-	return cn.bl.NewCall(cn.fns[nd.name])
+	args := []value.Value{}
+	for i := 0; i < len(nd.nds); i++ {
+		args = append(args, nd.nds[i].gen(cn))
+	}
+	return cn.bl.NewCall(cn.fns[nd.name], args...)
 }
 
 func (nd *node) genAssign(cn *context) value.Value {

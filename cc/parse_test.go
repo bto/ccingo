@@ -518,7 +518,7 @@ func TestParseBlock(t *testing.T) {
 	}
 }
 
-func TestParseFuncCall(t *testing.T) {
+func TestParseFuncCallNoArg(t *testing.T) {
 	// -foo();
 	tks := &tokens{}
 	tks.append(token{ty: '-'})
@@ -532,7 +532,7 @@ func TestParseFuncCall(t *testing.T) {
 		t.Fatal("invalid node:", nd)
 	}
 	ndr := nd.rhs
-	if !ndr.checkFuncCall("foo") {
+	if !ndr.checkFuncCall("foo", 0) {
 		t.Fatal("invalid node:", ndr)
 	}
 	ndl := nd.lhs
@@ -541,12 +541,45 @@ func TestParseFuncCall(t *testing.T) {
 	}
 }
 
+func TestParseFuncCallArgs(t *testing.T) {
+	// foo(a=1,b,c);
+	tks := &tokens{}
+	tks.append(token{ty: TK_IDENT, input: []byte("foo")})
+	tks.append(token{ty: '('})
+	tks.append(token{ty: TK_IDENT, input: []byte("a")})
+	tks.append(token{ty: '='})
+	tks.append(token{ty: TK_NUM, val: 1})
+	tks.append(token{ty: ','})
+	tks.append(token{ty: TK_IDENT, input: []byte("b")})
+	tks.append(token{ty: ','})
+	tks.append(token{ty: TK_IDENT, input: []byte("c")})
+	tks.append(token{ty: ')'})
+	tks.append(token{ty: ';'}).append(token{ty: TK_EOF})
+	nds := tks.Parse()
+	nd := nds[0]
+	if !nd.checkFuncCall("foo", 3) {
+		t.Fatal("invalid node:", nd)
+	}
+	nd0 := nd.nds[0]
+	if !nd0.checkOp('=') {
+		t.Fatal("invalid node:", nd0)
+	}
+	nd1 := nd.nds[1]
+	if !nd1.checkVar("b") {
+		t.Fatal("invalid node:", nd1)
+	}
+	nd2 := nd.nds[2]
+	if !nd2.checkVar("c") {
+		t.Fatal("invalid node:", nd2)
+	}
+}
+
 func (nd *node) checkBlock(n int) bool {
 	return nd.ty == ND_BLOCK && len(nd.nds) == n && nd.lhs == nil && nd.rhs == nil
 }
 
-func (nd *node) checkFuncCall(name string) bool {
-	return nd.ty == ND_FUNC_CALL && nd.name == name
+func (nd *node) checkFuncCall(name string, argc int) bool {
+	return nd.ty == ND_FUNC_CALL && nd.name == name && len(nd.nds) == argc
 }
 
 func (nd *node) checkNum(val int) bool {

@@ -339,13 +339,31 @@ func (tks *tokens) term() (nd *node) {
 }
 
 func (tks *tokens) funcCall(name string) *node {
+	nds := tks.funcCallArgs()
 	if !tks.consume(')') {
 		log.Fatal("関数の閉じカッコがありません: ", string(tks.current().input))
 	}
 	return &node{
 		ty:   ND_FUNC_CALL,
 		name: name,
+		nds:  nds,
 	}
+}
+
+func (tks *tokens) funcCallArgs() (nds nodes) {
+	if tks.current().ty == ')' {
+		return
+	}
+
+	nds = append(nds, *tks.assign())
+
+	for tks.current().ty != ')' {
+		if !tks.consume(',') {
+			break
+		}
+		nds = append(nds, *tks.assign())
+	}
+	return
 }
 
 func (tks *tokens) num() *node {
