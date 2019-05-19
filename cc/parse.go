@@ -12,6 +12,7 @@ const (
 	ND_VAR
 	ND_RETURN
 	ND_IF
+	ND_WHILE
 )
 
 type node struct {
@@ -50,7 +51,7 @@ func (tks *tokens) stmt() *node {
 			ty:  ND_RETURN,
 			lhs: ndAssign,
 		}
-	case TK_IF:
+	case TK_IF, TK_WHILE:
 		return tks.control()
 	default:
 		nd := tks.assign()
@@ -74,6 +75,20 @@ func (tks *tokens) control() *node {
 		ndStmt := tks.stmt()
 		return &node{
 			ty:  ND_IF,
+			lhs: ndAssign,
+			rhs: ndStmt,
+		}
+	case tks.consume(TK_WHILE):
+		if !tks.consume('(') {
+			log.Fatal("whileの開きカッコがありません: ", string(tks.current().input))
+		}
+		ndAssign := tks.assign()
+		if !tks.consume(')') {
+			log.Fatal("whileの閉じカッコがありません: ", string(tks.current().input))
+		}
+		ndStmt := tks.stmt()
+		return &node{
+			ty:  ND_WHILE,
 			lhs: ndAssign,
 			rhs: ndStmt,
 		}

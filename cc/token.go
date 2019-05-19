@@ -16,6 +16,7 @@ const (
 	TK_IDENT
 	TK_RETURN
 	TK_IF
+	TK_WHILE
 	TK_EOF
 )
 
@@ -144,6 +145,10 @@ func Tokenize(rd *bufio.Reader) (tks *tokens) {
 				continue
 			case "if":
 				tk.ty = TK_IF
+				tks.append(tk)
+				continue
+			case "while":
+				tk.ty = TK_WHILE
 				tks.append(tk)
 				continue
 			}
