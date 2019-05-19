@@ -60,6 +60,32 @@ func TestTokenizeMulDiv(t *testing.T) {
 	}
 }
 
+func TestTokenizeTerm(t *testing.T) {
+	rd := newReader("(1+2)")
+	tks := Tokenize(rd)
+	if len(tks.tks) != 6 {
+		t.Fatal("invalid number of tokens:", len(tks.tks))
+	}
+	if tk := tks.current(); !tk.checkChar('(') {
+		t.Fatal("invalid token:", tk)
+	}
+	if tk := tks.next(); !tk.checkNum(1) {
+		t.Fatal("invalid token:", tk)
+	}
+	if tk := tks.next(); !tk.checkChar('+') {
+		t.Fatal("invalid token:", tk)
+	}
+	if tk := tks.next(); !tk.checkNum(2) {
+		t.Fatal("invalid token:", tk)
+	}
+	if tk := tks.next(); !tk.checkChar(')') {
+		t.Fatal("invalid token:", tk)
+	}
+	if tk := tks.next(); tk.ty != TK_EOF {
+		t.Fatal("invalid token:", tk)
+	}
+}
+
 func TestTokenizeNum(t *testing.T) {
 	rd := newReader("")
 	tk, c, err := tokenizeNum(rd, '1')

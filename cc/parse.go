@@ -50,30 +50,43 @@ func (tks *tokens) addx(nd *node) *node {
 }
 
 func (tks *tokens) mul() *node {
-	nd := tks.num()
+	nd := tks.term()
 	return tks.mulx(nd)
 }
 
 func (tks *tokens) mulx(nd *node) *node {
 	switch {
 	case tks.consume('*'):
-		ndNum := tks.num()
+		ndTerm := tks.term()
 		nd = &node{
 			ty:  '*',
 			lhs: nd,
-			rhs: ndNum,
+			rhs: ndTerm,
 		}
 		return tks.mulx(nd)
 	case tks.consume('/'):
-		ndNum := tks.num()
+		ndTerm := tks.term()
 		nd = &node{
 			ty:  '/',
 			lhs: nd,
-			rhs: ndNum,
+			rhs: ndTerm,
 		}
 		return tks.mulx(nd)
 	default:
 		return nd
+	}
+}
+
+func (tks *tokens) term() *node {
+	switch {
+	case tks.consume('('):
+		nd := tks.add()
+		if !tks.consume(')') {
+			log.Fatal("閉じカッコがありません: ", string(tks.current().input))
+		}
+		return nd
+	default:
+		return tks.num()
 	}
 }
 

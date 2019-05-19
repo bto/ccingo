@@ -38,7 +38,7 @@ func Tokenize(rd *bufio.Reader) (tks *tokens) {
 		case byte(' '), byte('\n'):
 			c, err = rd.ReadByte()
 			continue
-		case byte('+'), byte('-'), byte('*'), byte('/'):
+		case byte('+'), byte('-'), byte('*'), byte('/'), byte('('), byte(')'):
 			tk := token{
 				ty:    int(c),
 				input: []byte{c},
