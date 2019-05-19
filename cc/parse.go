@@ -14,6 +14,7 @@ const (
 	ND_IF
 	ND_WHILE
 	ND_BLOCK
+	ND_FUNC_CALL
 )
 
 type node struct {
@@ -321,11 +322,30 @@ func (tks *tokens) term() (nd *node) {
 	case tk.ty == TK_NUM:
 		return tks.num()
 	case tk.ty == TK_IDENT:
-		return tks.ident()
+		name := string(tk.input)
+		tks.next()
+		if tks.consume('(') {
+			return tks.funcCall(name)
+		} else {
+			return &node{
+				ty:   ND_VAR,
+				name: name,
+			}
+		}
 	}
 
 	log.Fatal("不正なトークンです: ", string(tk.input))
 	return
+}
+
+func (tks *tokens) funcCall(name string) *node {
+	if !tks.consume(')') {
+		log.Fatal("関数の閉じカッコがありません: ", string(tks.current().input))
+	}
+	return &node{
+		ty:   ND_FUNC_CALL,
+		name: name,
+	}
 }
 
 func (tks *tokens) num() *node {
@@ -338,19 +358,6 @@ func (tks *tokens) num() *node {
 	return &node{
 		ty:  ND_NUM,
 		val: tk.val,
-	}
-}
-
-func (tks *tokens) ident() *node {
-	tk := tks.current()
-	if tk.ty != TK_IDENT {
-		log.Fatal("変数ではないトークンです: ", string(tk.input))
-	}
-
-	tks.next()
-	return &node{
-		ty:   ND_VAR,
-		name: string(tk.input),
 	}
 }
 

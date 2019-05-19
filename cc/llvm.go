@@ -12,19 +12,23 @@ import (
 )
 
 type context struct {
+	mod  *ir.Module
 	fn   *ir.Func
 	bl   *ir.Block
+	fns  map[string]*ir.Func
 	vars map[string]*ir.InstAlloca
 }
 
 func (nds nodes) PrintLlvm() {
 	var v value.Value
 	cn := &context{
+		fns:  make(map[string]*ir.Func),
 		vars: make(map[string]*ir.InstAlloca),
 	}
 
-	m := ir.NewModule()
-	cn.fn = m.NewFunc("main", types.I64)
+	cn.mod = ir.NewModule()
+	cn.fn = cn.mod.NewFunc("main", types.I64)
+	cn.fns["main"] = cn.fn
 	cn.bl = cn.fn.NewBlock("")
 
 	for _, nd := range nds {
@@ -41,7 +45,7 @@ func (nds nodes) PrintLlvm() {
 	}
 
 	cn.bl.NewRet(v)
-	fmt.Println(m)
+	fmt.Println(cn.mod)
 }
 
 func (nd *node) gen(cn *context) value.Value {
@@ -58,6 +62,8 @@ func (nd *node) gen(cn *context) value.Value {
 		return nd.genWhile(cn)
 	case ND_BLOCK:
 		return nd.genBlock(cn)
+	case ND_FUNC_CALL:
+		return nd.genFuncCall(cn)
 	case int('='):
 		return nd.genAssign(cn)
 	case 0:
@@ -144,6 +150,15 @@ func (nd *node) genBlock(cn *context) value.Value {
 		nd1.gen(cn)
 	}
 	return nil
+}
+
+func (nd *node) genFuncCall(cn *context) value.Value {
+	_, ok := cn.fns[nd.name]
+	if !ok {
+		cn.fns[nd.name] = cn.mod.NewFunc(nd.name, types.I64)
+	}
+
+	return cn.bl.NewCall(cn.fns[nd.name])
 }
 
 func (nd *node) genAssign(cn *context) value.Value {

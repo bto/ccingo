@@ -1,8 +1,12 @@
 TOP_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 BUILD_DIR = $(TOP_DIR)/build
+C_DIR = $(TOP_DIR)/c
 
 .PHONY: all
-all: tags format test
+all: build tags format test
+
+.PHONY: build
+build: $(patsubst %.c, %.o, $(wildcard $(C_DIR)/*.c))
 
 .PHONY: clean
 clean:

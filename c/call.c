@@ -1,0 +1,7 @@
+#include "include.h"
+
+void call() {
+    retuchar();
+    retulong();
+    add9(1, 2, 3, 4, 5, 6, 7, 8, 9);
+}

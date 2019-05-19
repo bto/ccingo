@@ -28,9 +28,11 @@ mul: mul "/" unary
 unary: "+" term
 unary: "+" term
 unary: term
+term: func_call
 term: num
 term: ident
 term: "(" assign ")"
+func_call: ident "(" ")"
 
 
 program:
@@ -66,6 +68,8 @@ mulx: "/" unary mulx
 unary: "+" term
 unary: "+" term
 unary: term
+term: func_call
 term: num
 term: ident
 term: "(" assign ")"
+func_call: ident "(" ")"
