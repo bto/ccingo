@@ -12,8 +12,8 @@ import (
 )
 
 type context struct {
-	fn *ir.Func
-	bl *ir.Block
+	fn   *ir.Func
+	bl   *ir.Block
 	vars map[string]*ir.InstAlloca
 }
 
@@ -92,8 +92,8 @@ func (nd *node) genIf(cn *context) value.Value {
 	cn.bl.NewCondBr(cond, blThen, blElse)
 
 	cnThen := &context{
-		fn: cn.fn,
-		bl: blThen,
+		fn:   cn.fn,
+		bl:   blThen,
 		vars: cn.vars,
 	}
 	nd.rhs.gen(cnThen)
@@ -113,8 +113,8 @@ func (nd *node) genWhile(cn *context) value.Value {
 	cn.bl.NewBr(blCond)
 
 	cnCond := &context{
-		fn: cn.fn,
-		bl: blCond,
+		fn:   cn.fn,
+		bl:   blCond,
 		vars: cn.vars,
 	}
 	cond := nd.lhs.gen(cnCond)
@@ -124,8 +124,8 @@ func (nd *node) genWhile(cn *context) value.Value {
 	blCond.NewCondBr(cond, blBegin, blEnd)
 
 	cnBegin := &context{
-		fn: cn.fn,
-		bl: blBegin,
+		fn:   cn.fn,
+		bl:   blBegin,
 		vars: cn.vars,
 	}
 	nd.rhs.gen(cnBegin)
