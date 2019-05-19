@@ -1,3 +1,11 @@
+equality: relational
+equality: equality "==" relational
+equality: equality "!=" relational
+relational: add
+relational: relational "<"  add
+relational: relational "<=" add
+relational: relational ">"  add
+relational: relational ">=" add
 add: mul
 add: add "+" mul
 add: add "-" mul
@@ -8,9 +16,18 @@ unary: "+" term
 unary: "+" term
 unary: term
 term: num
-term: "(" add ")"
+term: "(" equality ")"
 
 
+equality: relational equalityx
+equalityx:
+equalityx: "==" relational equalityx
+equalityx: "!=" relational equalityx
+relational: add relationalx
+relationalx: "<"  add relationalx
+relationalx: "<=" add relationalx
+relationalx: ">"  add relationalx
+relationalx: ">=" add relationalx
 add: mul addx
 addx:
 addx: "+" mul addx
@@ -23,4 +40,4 @@ unary: "+" term
 unary: "+" term
 unary: term
 term: num
-term: "(" add ")"
+term: "(" equality ")"

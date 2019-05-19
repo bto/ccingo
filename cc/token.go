@@ -9,6 +9,10 @@ import (
 
 const (
 	TK_NUM = iota + 256
+	TK_EQ
+	TK_NE
+	TK_LE
+	TK_GE
 	TK_EOF
 )
 
@@ -37,6 +41,70 @@ func Tokenize(rd *bufio.Reader) (tks *tokens) {
 		switch c {
 		case byte(' '), byte('\n'):
 			c, err = rd.ReadByte()
+			continue
+		case byte('='):
+			c, err = rd.ReadByte()
+			if c != byte('=') {
+				log.Fatal("トークナイズできません: ", string([]byte{'=', c}))
+			}
+
+			tk := token{
+				ty:    TK_EQ,
+				input: []byte{'=', c},
+			}
+			tks.append(tk)
+
+			c, err = rd.ReadByte()
+			continue
+		case byte('!'):
+			c, err = rd.ReadByte()
+			if c != byte('=') {
+				log.Fatal("トークナイズできません: ", string([]byte{'!', c}))
+			}
+
+			tk := token{
+				ty:    TK_NE,
+				input: []byte{'!', c},
+			}
+			tks.append(tk)
+
+			c, err = rd.ReadByte()
+			continue
+		case byte('<'):
+			c, err = rd.ReadByte()
+			if c == byte('=') {
+				tk := token{
+					ty:    TK_LE,
+					input: []byte{'<', c},
+				}
+				tks.append(tk)
+
+				c, err = rd.ReadByte()
+			} else {
+				tk := token{
+					ty:    int('<'),
+					input: []byte{'<'},
+				}
+				tks.append(tk)
+			}
+			continue
+		case byte('>'):
+			c, err = rd.ReadByte()
+			if c == byte('=') {
+				tk := token{
+					ty:    TK_GE,
+					input: []byte{'>', c},
+				}
+				tks.append(tk)
+
+				c, err = rd.ReadByte()
+			} else {
+				tk := token{
+					ty:    int('>'),
+					input: []byte{'>'},
+				}
+				tks.append(tk)
+			}
 			continue
 		case byte('+'), byte('-'), byte('*'), byte('/'), byte('('), byte(')'):
 			tk := token{

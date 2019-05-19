@@ -20,7 +20,8 @@ tags:
 .PHONY: test
 test:
 	@go test ./cc
-	$(TOP_DIR)/test.sh
+	@echo
+	@$(TOP_DIR)/test.sh
 
 
 PRACTICE_DIR = $(TOP_DIR)/practice

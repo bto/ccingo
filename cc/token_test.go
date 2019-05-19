@@ -86,6 +86,35 @@ func TestTokenizeTerm(t *testing.T) {
 	}
 }
 
+func TestTokenizeComp(t *testing.T) {
+	rd := newReader("==!=<<=>>=")
+	tks := Tokenize(rd)
+	if len(tks.tks) != 7 {
+		t.Fatal("invalid number of tokens:", len(tks.tks))
+	}
+	if tk := tks.current(); !tk.checkWord(TK_EQ, "==") {
+		t.Fatal("invalid token:", tk)
+	}
+	if tk := tks.next(); !tk.checkWord(TK_NE, "!=") {
+		t.Fatal("invalid token:", tk)
+	}
+	if tk := tks.next(); !tk.checkChar('<') {
+		t.Fatal("invalid token:", tk)
+	}
+	if tk := tks.next(); !tk.checkWord(TK_LE, "<=") {
+		t.Fatal("invalid token:", tk)
+	}
+	if tk := tks.next(); !tk.checkChar('>') {
+		t.Fatal("invalid token:", tk)
+	}
+	if tk := tks.next(); !tk.checkWord(TK_GE, ">=") {
+		t.Fatal("invalid token:", tk)
+	}
+	if tk := tks.next(); tk.ty != TK_EOF {
+		t.Fatal("invalid token:", tk)
+	}
+}
+
 func TestTokenizeNum(t *testing.T) {
 	rd := newReader("")
 	tk, c, err := tokenizeNum(rd, '1')
@@ -118,6 +147,10 @@ func (tk *token) checkChar(op int) bool {
 
 func (tk *token) checkNum(val int) bool {
 	return tk.ty == TK_NUM && tk.val == val && string(tk.input) == strconv.Itoa(val)
+}
+
+func (tk *token) checkWord(ty int, word string) bool {
+	return tk.ty == ty && string(tk.input) == word
 }
 
 func newReader(str string) *bufio.Reader {

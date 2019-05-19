@@ -6,6 +6,9 @@ import (
 
 const (
 	ND_NUM = iota + 256
+	ND_EQ
+	ND_NE
+	ND_LE
 )
 
 type node struct {
@@ -14,11 +17,83 @@ type node struct {
 }
 
 func (tks *tokens) Parse() *node {
-	nd := tks.add()
+	nd := tks.equality()
 	if !tks.consume(TK_EOF) {
 		log.Fatal("不正なトークンです: ", string(tks.current().input))
 	}
 	return nd
+}
+
+func (tks *tokens) equality() *node {
+	nd := tks.relational()
+	return tks.equalityx(nd)
+}
+
+func (tks *tokens) equalityx(nd *node) *node {
+	switch {
+	case tks.consume(TK_EQ):
+		ndRel := tks.relational()
+		nd = &node{
+			ty:  ND_EQ,
+			lhs: nd,
+			rhs: ndRel,
+		}
+		return tks.equalityx(nd)
+	case tks.consume(TK_NE):
+		ndRel := tks.relational()
+		nd = &node{
+			ty:  ND_NE,
+			lhs: nd,
+			rhs: ndRel,
+		}
+		return tks.equalityx(nd)
+	default:
+		return nd
+	}
+}
+
+func (tks *tokens) relational() *node {
+	nd := tks.add()
+	return tks.relationalx(nd)
+}
+
+func (tks *tokens) relationalx(nd *node) *node {
+	switch {
+	case tks.consume('<'):
+		ndAdd := tks.add()
+		nd = &node{
+			ty:  '<',
+			lhs: nd,
+			rhs: ndAdd,
+		}
+		return tks.relationalx(nd)
+	case tks.consume(TK_LE):
+		ndAdd := tks.add()
+		nd = &node{
+			ty:  ND_LE,
+			lhs: nd,
+			rhs: ndAdd,
+		}
+		return tks.relationalx(nd)
+	case tks.consume('>'):
+		ndAdd := tks.add()
+		nd = &node{
+			ty:  '<',
+			lhs: ndAdd,
+			rhs: nd,
+		}
+		return tks.relationalx(nd)
+	case tks.consume(TK_GE):
+		ndAdd := tks.add()
+		nd = &node{
+			ty:  ND_LE,
+			lhs: ndAdd,
+			rhs: nd,
+		}
+		return tks.relationalx(nd)
+	default:
+		return nd
+	}
 }
 
 func (tks *tokens) add() *node {
@@ -100,7 +175,7 @@ func (tks *tokens) unary() (nd *node) {
 func (tks *tokens) term() *node {
 	switch {
 	case tks.consume('('):
-		nd := tks.add()
+		nd := tks.equality()
 		if !tks.consume(')') {
 			log.Fatal("閉じカッコがありません: ", string(tks.current().input))
 		}
