@@ -141,19 +141,16 @@ func TestTokenizeVar(t *testing.T) {
 	}
 }
 
-func TestTokenizeReturn(t *testing.T) {
-	rd := newReader("return a;")
+func TestTokenizeWord(t *testing.T) {
+	rd := newReader("return if")
 	tks := Tokenize(rd)
-	if len(tks.tks) != 4 {
+	if len(tks.tks) != 3 {
 		t.Fatal("invalid number of tokens:", len(tks.tks))
 	}
 	if tk := tks.current(); !tk.checkWord(TK_RETURN, "return") {
 		t.Fatal("invalid token:", tk)
 	}
-	if tk := tks.next(); !tk.checkWord(TK_IDENT, "a") {
-		t.Fatal("invalid token:", tk)
-	}
-	if tk := tks.next(); !tk.checkChar(';') {
+	if tk := tks.next(); !tk.checkWord(TK_IF, "if") {
 		t.Fatal("invalid token:", tk)
 	}
 	if tk := tks.next(); tk.ty != TK_EOF {

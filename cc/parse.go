@@ -11,6 +11,7 @@ const (
 	ND_LE
 	ND_VAR
 	ND_RETURN
+	ND_IF
 )
 
 type node struct {
@@ -36,21 +37,50 @@ func (tks *tokens) program() (nds nodes) {
 	return
 }
 
-func (tks *tokens) stmt() (nd *node) {
-	if tks.consume(TK_RETURN) {
+func (tks *tokens) stmt() *node {
+	tk := tks.current()
+	switch tk.ty {
+	case TK_RETURN:
+		tks.next()
 		ndAssign := tks.assign()
-		nd = &node{
+		if !tks.consume(';') {
+			log.Fatal("';'ではないトークンです: ", string(tks.current().input))
+		}
+		return &node{
 			ty:  ND_RETURN,
 			lhs: ndAssign,
 		}
-	} else {
-		nd = tks.assign()
+	case TK_IF:
+		return tks.control()
+	default:
+		nd := tks.assign()
+		if !tks.consume(';') {
+			log.Fatal("';'ではないトークンです: ", string(tks.current().input))
+		}
+		return nd
+	}
+}
+
+func (tks *tokens) control() *node {
+	switch {
+	case tks.consume(TK_IF):
+		if !tks.consume('(') {
+			log.Fatal("ifの開きカッコがありません: ", string(tks.current().input))
+		}
+		ndAssign := tks.assign()
+		if !tks.consume(')') {
+			log.Fatal("ifの閉じカッコがありません: ", string(tks.current().input))
+		}
+		ndStmt := tks.stmt()
+		return &node{
+			ty:  ND_IF,
+			lhs: ndAssign,
+			rhs: ndStmt,
+		}
 	}
 
-	if !tks.consume(';') {
-		log.Fatal("';'ではないトークンです: ", string(tks.current().input))
-	}
-	return
+	log.Fatal("不正なトークンです: ", string(tks.current().input))
+	return &node{}
 }
 
 func (tks *tokens) assign() *node {

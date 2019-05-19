@@ -50,6 +50,8 @@ func (nd *node) gen(cn *context) value.Value {
 		return nd.genVar(cn)
 	case ND_RETURN:
 		return nd.genReturn(cn)
+	case ND_IF:
+		return nd.genIf(cn)
 	case int('='):
 		return nd.genAssign(cn)
 	default:
@@ -72,6 +74,33 @@ func (nd *node) genReturn(cn *context) value.Value {
 		v = cn.bl.NewZExt(v, types.I64)
 	}
 	return v
+}
+
+func (nd *node) genIf(cn *context) value.Value {
+	blThen := cn.fn.NewBlock("then")
+	blElse := cn.fn.NewBlock("else")
+	blEnd := cn.fn.NewBlock("endif")
+
+	cond := nd.lhs.gen(cn)
+	if cond.Type() != types.I1 {
+		cond = cn.bl.NewICmp(enum.IPredNE, cond, constant.NewInt(types.I64, 0))
+	}
+
+	cnThen := &context{
+		fn: cn.fn,
+		bl: blThen,
+		vars: cn.vars,
+	}
+	nd.rhs.gen(cnThen)
+	blThen.NewBr(blEnd)
+
+	blElse.NewBr(blEnd)
+
+	cn.bl.NewCondBr(cond, blThen, blElse)
+
+	cn.bl = blEnd
+
+	return constant.NewInt(types.I64, 1)
 }
 
 func (nd *node) genAssign(cn *context) value.Value {
