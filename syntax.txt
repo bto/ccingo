@@ -1,9 +1,16 @@
-add: num
-add: add "+" num
-add: add "-" num
+add: mul
+add: add "+" mul
+add: add "-" mul
+mul: num
+mul: mul "*" num
+mul: mul "/" num
 
 
-add: num addx
+add: mul addx
 addx:
-addx: "+" num addx
-addx: "-" num addx
+addx: "+" mul addx
+addx: "-" mul addx
+mul: num mulx
+mulx:
+mulx: "*" num mulx
+mulx: "/" num mulx

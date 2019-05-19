@@ -38,6 +38,10 @@ func (nd *node) genOp(block *ir.Block) value.Value {
 		return block.NewAdd(v1, v2)
 	case '-':
 		return block.NewSub(v1, v2)
+	case '*':
+		return block.NewMul(v1, v2)
+	case '/':
+		return block.NewUDiv(v1, v2)
 	}
 
 	log.Fatal("invalid node: ", nd)

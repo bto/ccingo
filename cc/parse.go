@@ -22,28 +22,56 @@ func (tks *tokens) Parse() *node {
 }
 
 func (tks *tokens) add() *node {
-	nd := tks.num()
+	nd := tks.mul()
 	return tks.addx(nd)
 }
 
 func (tks *tokens) addx(nd *node) *node {
 	switch {
 	case tks.consume('+'):
-		ndNum := tks.num()
+		ndMul := tks.mul()
 		nd = &node{
 			ty:  '+',
 			lhs: nd,
-			rhs: ndNum,
+			rhs: ndMul,
 		}
 		return tks.addx(nd)
 	case tks.consume('-'):
-		ndNum := tks.num()
+		ndMul := tks.mul()
 		nd = &node{
 			ty:  '-',
 			lhs: nd,
-			rhs: ndNum,
+			rhs: ndMul,
 		}
 		return tks.addx(nd)
+	default:
+		return nd
+	}
+}
+
+func (tks *tokens) mul() *node {
+	nd := tks.num()
+	return tks.mulx(nd)
+}
+
+func (tks *tokens) mulx(nd *node) *node {
+	switch {
+	case tks.consume('*'):
+		ndNum := tks.num()
+		nd = &node{
+			ty:  '*',
+			lhs: nd,
+			rhs: ndNum,
+		}
+		return tks.mulx(nd)
+	case tks.consume('/'):
+		ndNum := tks.num()
+		nd = &node{
+			ty:  '/',
+			lhs: nd,
+			rhs: ndNum,
+		}
+		return tks.mulx(nd)
 	default:
 		return nd
 	}
