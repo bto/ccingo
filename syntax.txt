@@ -5,6 +5,7 @@ stmt: assign ";"
 stmt: return assign ";"
 control: "if" "(" assign ")" stmt
 control: "while" "(" assign ")" stmt
+control: "for" "(" assign ";" assign ";" assign ")" stmt
 assign: equality
 assign: equality "=" assign
 equality: relational
@@ -36,6 +37,7 @@ stmt: assign ";"
 stmt: return assign ";"
 control: "if" "(" assign ")" stmt
 control: "while" "(" assign ")" stmt
+control: "for" "(" assign ";" assign ";" assign ")" stmt
 assign: equality
 assign: equality "=" assign
 equality: relational equalityx

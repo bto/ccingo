@@ -51,7 +51,7 @@ func (tks *tokens) stmt() *node {
 			ty:  ND_RETURN,
 			lhs: ndAssign,
 		}
-	case TK_IF, TK_WHILE:
+	case TK_IF, TK_WHILE, TK_FOR:
 		return tks.control()
 	default:
 		nd := tks.assign()
@@ -91,6 +91,34 @@ func (tks *tokens) control() *node {
 			ty:  ND_WHILE,
 			lhs: ndAssign,
 			rhs: ndStmt,
+		}
+	case tks.consume(TK_FOR):
+		if !tks.consume('(') {
+			log.Fatal("forの開きカッコがありません: ", string(tks.current().input))
+		}
+		ndAssign1 := tks.assign()
+		if !tks.consume(';') {
+			log.Fatal("';'ではないトークンです:", string(tks.current().input))
+		}
+		ndAssign2 := tks.assign()
+		if !tks.consume(';') {
+			log.Fatal("';'ではないトークンです:", string(tks.current().input))
+		}
+		ndAssign3 := tks.assign()
+		if !tks.consume(')') {
+			log.Fatal("forの閉じカッコがありません: ", string(tks.current().input))
+		}
+		ndStmt := tks.stmt()
+		return &node{
+			lhs: ndAssign1,
+			rhs: &node{
+				ty:  ND_WHILE,
+				lhs: ndAssign2,
+				rhs: &node{
+					lhs: ndStmt,
+					rhs: ndAssign3,
+				},
+			},
 		}
 	}
 

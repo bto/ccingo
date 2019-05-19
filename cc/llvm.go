@@ -58,6 +58,8 @@ func (nd *node) gen(cn *context) value.Value {
 		return nd.genWhile(cn)
 	case int('='):
 		return nd.genAssign(cn)
+	case 0:
+		return nd.genNoop(cn)
 	default:
 		return nd.genOp(cn)
 	}
@@ -145,6 +147,12 @@ func (nd *node) genAssign(cn *context) value.Value {
 
 	cn.bl.NewStore(v, r)
 	return v
+}
+
+func (nd *node) genNoop(cn *context) value.Value {
+	nd.lhs.gen(cn)
+	nd.rhs.gen(cn)
+	return nil
 }
 
 func (nd *node) genOp(cn *context) value.Value {
