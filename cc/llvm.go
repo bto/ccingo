@@ -13,42 +13,19 @@ import (
 
 func (nds nodes) PrintLlvm() {
 	var v value.Value
+	vars := make(map[string]*ir.InstAlloca)
 
 	m := ir.NewModule()
 	block := m.NewFunc("main", types.I64).NewBlock("")
-
-	vars := make(map[string]*ir.InstAlloca)
-	vars["a"] = block.NewAlloca(types.I64)
-	vars["b"] = block.NewAlloca(types.I64)
-	vars["c"] = block.NewAlloca(types.I64)
-	vars["d"] = block.NewAlloca(types.I64)
-	vars["e"] = block.NewAlloca(types.I64)
-	vars["f"] = block.NewAlloca(types.I64)
-	vars["g"] = block.NewAlloca(types.I64)
-	vars["h"] = block.NewAlloca(types.I64)
-	vars["i"] = block.NewAlloca(types.I64)
-	vars["j"] = block.NewAlloca(types.I64)
-	vars["k"] = block.NewAlloca(types.I64)
-	vars["l"] = block.NewAlloca(types.I64)
-	vars["m"] = block.NewAlloca(types.I64)
-	vars["n"] = block.NewAlloca(types.I64)
-	vars["o"] = block.NewAlloca(types.I64)
-	vars["p"] = block.NewAlloca(types.I64)
-	vars["q"] = block.NewAlloca(types.I64)
-	vars["r"] = block.NewAlloca(types.I64)
-	vars["s"] = block.NewAlloca(types.I64)
-	vars["t"] = block.NewAlloca(types.I64)
-	vars["u"] = block.NewAlloca(types.I64)
-	vars["v"] = block.NewAlloca(types.I64)
-	vars["w"] = block.NewAlloca(types.I64)
-	vars["x"] = block.NewAlloca(types.I64)
-	vars["y"] = block.NewAlloca(types.I64)
-	vars["z"] = block.NewAlloca(types.I64)
 
 	for _, nd := range nds {
 		v = nd.gen(block, vars)
 		if v.Type() != types.I64 {
 			v = block.NewZExt(v, types.I64)
+		}
+
+		if nd.ty == ND_RETURN {
+			break
 		}
 	}
 
@@ -76,16 +53,20 @@ func (nd *node) genNum() *constant.Int {
 }
 
 func (nd *node) genVar(block *ir.Block, vars map[string]*ir.InstAlloca) value.Value {
-	r := nd.genLval(vars)
+	r := nd.genLval(block, vars)
 	return block.NewLoad(r)
 }
 
 func (nd *node) genReturn(block *ir.Block, vars map[string]*ir.InstAlloca) value.Value {
-	return nd.lhs.gen(block, vars)
+	v := nd.lhs.gen(block, vars)
+	if v.Type() != types.I64 {
+		v = block.NewZExt(v, types.I64)
+	}
+	return v
 }
 
 func (nd *node) genAssign(block *ir.Block, vars map[string]*ir.InstAlloca) value.Value {
-	r := nd.lhs.genLval(vars)
+	r := nd.lhs.genLval(block, vars)
 
 	v := nd.rhs.gen(block, vars)
 	if v.Type() != types.I64 {
@@ -130,9 +111,14 @@ func (nd *node) genOp(block *ir.Block, vars map[string]*ir.InstAlloca) value.Val
 	return nil
 }
 
-func (nd *node) genLval(vars map[string]*ir.InstAlloca) *ir.InstAlloca {
+func (nd *node) genLval(block *ir.Block, vars map[string]*ir.InstAlloca) *ir.InstAlloca {
 	if nd.ty != ND_VAR {
 		log.Fatal("left hand value is not a variable")
+	}
+
+	_, ok := vars[nd.name]
+	if !ok {
+		vars[nd.name] = block.NewAlloca(types.I64)
 	}
 
 	return vars[nd.name]
