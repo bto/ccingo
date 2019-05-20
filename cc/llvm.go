@@ -24,7 +24,6 @@ func (nds nodes) PrintLlvm() {
 	cn := &context{
 		mod:  ir.NewModule(),
 		fns:  make(map[string]*ir.Func),
-		vars: make(map[string]*ir.InstAlloca),
 	}
 
 	for _, nd := range nds {
@@ -175,15 +174,18 @@ func (nd *node) genFuncCall(cn *context) value.Value {
 func (nd *node) genFuncDef(cn *context) value.Value {
 	params := []*ir.Param{}
 	for i := 0; i < len(nd.nds); i++ {
-		name := fmt.Sprintf("a%d", i)
+		name := nd.nds[i].name
 		params = append(params, ir.NewParam(name, types.I64))
 	}
 	cn.fn = cn.mod.NewFunc(nd.name, types.I64, params...)
-
 	cn.fns[nd.name] = cn.fn
 	cn.bl = cn.fn.NewBlock(nd.name)
+	cn.vars = make(map[string]*ir.InstAlloca)
 
 	v := nd.lhs.gen(cn)
+	if v.Type() != types.I64 {
+		v = cn.bl.NewZExt(v, types.I64)
+	}
 	cn.bl.NewRet(v)
 
 	return nil
