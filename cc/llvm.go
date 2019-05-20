@@ -22,8 +22,8 @@ type context struct {
 func (nds nodes) PrintLlvm() {
 	var v value.Value
 	cn := &context{
-		mod:  ir.NewModule(),
-		fns:  make(map[string]*ir.Func),
+		mod: ir.NewModule(),
+		fns: make(map[string]*ir.Func),
 	}
 
 	for _, nd := range nds {
@@ -180,7 +180,14 @@ func (nd *node) genFuncDef(cn *context) value.Value {
 	cn.fn = cn.mod.NewFunc(nd.name, types.I64, params...)
 	cn.fns[nd.name] = cn.fn
 	cn.bl = cn.fn.NewBlock(nd.name)
+
 	cn.vars = make(map[string]*ir.InstAlloca)
+	for i := 0; i < len(params); i++ {
+		param := params[i]
+		v := cn.bl.NewAlloca(param.Typ)
+		cn.vars[param.LocalIdent.Ident()] = v
+		cn.bl.NewStore(param, v)
+	}
 
 	v := nd.lhs.gen(cn)
 	if v.Type() != types.I64 {
