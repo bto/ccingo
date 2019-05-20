@@ -83,6 +83,7 @@ func (nd *node) genReturn(cn *context) value.Value {
 	if v.Type() != types.I64 {
 		v = cn.bl.NewZExt(v, types.I64)
 	}
+	cn.bl.NewRet(v)
 	return v
 }
 
@@ -103,7 +104,9 @@ func (nd *node) genIf(cn *context) value.Value {
 		vars: cn.vars,
 	}
 	nd.rhs.gen(cnThen)
-	blThen.NewBr(blEnd)
+	if blThen.Term == nil {
+		blThen.NewBr(blEnd)
+	}
 
 	blElse.NewBr(blEnd)
 
@@ -185,7 +188,7 @@ func (nd *node) genFuncDef(cn *context) value.Value {
 	for i := 0; i < len(params); i++ {
 		param := params[i]
 		v := cn.bl.NewAlloca(param.Typ)
-		cn.vars[param.LocalIdent.Ident()] = v
+		cn.vars[param.LocalIdent.Name()] = v
 		cn.bl.NewStore(param, v)
 	}
 
